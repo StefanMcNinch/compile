@@ -546,6 +546,11 @@
 
         function showDraft() {
             document.getElementById('draft-screen').classList.remove('hidden');
+            // Show player role
+            const playerRole = document.getElementById('player-role');
+            if (playerRole) {
+                playerRole.textContent = gameState.isHost ? 'You are Player 1 (drafting first)' : 'You are Player 2';
+            }
             updateDraftUI();
         }
 
