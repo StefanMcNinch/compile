@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compile - P2P Card Game</title>
+    <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a0e2e 100%);
+            color: #00ff88;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #connection-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 40px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        input, button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        #game-board {
+            width: 100%;
+            max-width: 1400px;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            gap: 20px;
+            min-height: 90vh;
+        }
+
+        .player-area {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+        }
+
+        .field {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 136, 0.5);
+            border-radius: 10px;
+            min-height: 400px;
+        }
+
+        .line {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .protocol {
+            width: 120px;
+            height: 160px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .protocol.loading {
+            background: linear-gradient(135deg, #444, #222);
+            border: 2px solid #666;
+            color: #888;
+        }
+
+        .protocol.compiled {
+            background: linear-gradient(135deg, #00ff88, #00cc66);
+            border: 2px solid #00ff88;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
+        }
+
+        .stack {
+            min-height: 100px;
+            width: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: -30px;
+        }
+
+        .card {
+            width: 100px;
+            height: 140px;
+            border-radius: 6px;
+            border: 2px solid;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            background: linear-gradient(135deg, var(--card-bg1), var(--card-bg2));
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            margin-top: -100px;
+        }
+
+        .card:first-child {
+            margin-top: 0;
+        }
+
+        .card.face-down {
+            background: linear-gradient(135deg, #333, #111);
+            border-color: #666;
+        }
+
+        .card.face-down .card-content {
+            display: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .card-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-text {
+            font-size: 9px;
+            line-height: 1.2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .card-text div {
+            padding: 3px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 3px;
+        }
+
+        .hand {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            min-height: 170px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hand .card {
+            margin-top: 0;
+        }
+
+        .info-panel {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 5px;
+        }
+
+        .draft-area {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(0, 255, 136, 0.5);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .protocol-select {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .protocol-select:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .protocol-select.selected {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        #status {
+            font-size: 18px;
+            padding: 10px;
+            text-align: center;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .control-indicator {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #ffaa00, #ff6600);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 0 10px rgba(255, 170, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        /* Protocol Colors */
+        .protocol-chaos { --card-bg1: #d946ef; --card-bg2: #a21caf; border-color: #d946ef; }
+        .protocol-clarity { --card-bg1: #94a3b8; --card-bg2: #64748b; border-color: #94a3b8; }
+        .protocol-corruption { --card-bg1: #65a30d; --card-bg2: #4d7c0f; border-color: #65a30d; }
+        .protocol-courage { --card-bg1: #fb923c; --card-bg2: #ea580c; border-color: #fb923c; }
+        .protocol-fear { --card-bg1: #f97316; --card-bg2: #c2410c; border-color: #f97316; }
+        .protocol-gravity { --card-bg1: #7c3aed; --card-bg2: #5b21b6; border-color: #7c3aed; }
+        .protocol-ice { --card-bg1: #c084fc; --card-bg2: #9333ea; border-color: #c084fc; }
+        .protocol-life { --card-bg1: #14b8a6; --card-bg2: #0d9488; border-color: #14b8a6; }
+        .protocol-light { --card-bg1: #fdba74; --card-bg2: #f97316; border-color: #fdba74; }
+        .protocol-luck { --card-bg1: #5eead4; --card-bg2: #2dd4bf; border-color: #5eead4; }
+        .protocol-metal { --card-bg1: #9ca3af; --card-bg2: #6b7280; border-color: #9ca3af; }
+        .protocol-mirror { --card-bg1: #f43f5e; --card-bg2: #e11d48; border-color: #f43f5e; }
+        .protocol-peace { --card-bg1: #fde047; --card-bg2: #facc15; border-color: #fde047; }
+        .protocol-plague { --card-bg1: #10b981; --card-bg2: #059669; border-color: #10b981; }
+        .protocol-psychic { --card-bg1: #a855f7; --card-bg2: #7c3aed; border-color: #a855f7; }
+        .protocol-smoke { --card-bg1: #14b8a6; --card-bg2: #0d9488; border-color: #14b8a6; }
+        .protocol-speed { --card-bg1: #94a3b8; --card-bg2: #64748b; border-color: #94a3b8; }
+        .protocol-spirit { --card-bg1: #3b82f6; --card-bg2: #1e40af; border-color: #3b82f6; }
+        .protocol-time { --card-bg1: #f87171; --card-bg2: #dc2626; border-color: #f87171; }
+        .protocol-war { --card-bg1: #7f1d1d; --card-bg2: #450a0a; border-color: #7f1d1d; }
+        .protocol-water { --card-bg1: #3b82f6; --card-bg2: #1e40af; border-color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <div id="connection-screen">
+        <h1>COMPILE</h1>
+        <p>Competitive P2P Card Game</p>
+        <div>
+            <label>Your ID: </label>
+            <input type="text" id="my-id" readonly>
+        </div>
+        <div>
+            <label>Connect to: </label>
+            <input type="text" id="peer-id" placeholder="Enter peer ID">
+            <button onclick="connectToPeer()">Connect</button>
+        </div>
+        <div id="connection-status"></div>
+    </div>
+
+    <div id="draft-screen" class="hidden">
+        <h2>PROTOCOL DRAFT</h2>
+        <div id="status"></div>
+        <div id="draft-area" class="draft-area"></div>
+        <div id="selected-protocols">
+            <h3>Your Protocols:</h3>
+            <div id="my-protocols"></div>
+        </div>
+    </div>
+
+    <div id="game-board" class="hidden">
+        <div class="player-area" id="opponent-area">
+            <div class="info-panel">
+                <span>Opponent</span>
+                <span>Hand: <span id="opp-hand-count">5</span></span>
+                <span>Deck: <span id="opp-deck-count">13</span></span>
+                <span>Trash: <span id="opp-trash-count">0</span></span>
+            </div>
+        </div>
+
+        <div class="field" id="field">
+            <div class="line" data-line="0">
+                <div class="protocol loading" id="opp-protocol-0">Loading...</div>
+                <div class="stack" id="opp-stack-0"></div>
+                <div class="stack" id="my-stack-0"></div>
+                <div class="protocol loading" id="my-protocol-0">Loading...</div>
+            </div>
+            <div class="line" data-line="1">
+                <div class="protocol loading" id="opp-protocol-1">Loading...</div>
+                <div class="stack" id="opp-stack-1"></div>
+                <div class="stack" id="my-stack-1"></div>
+                <div class="protocol loading" id="my-protocol-1">Loading...</div>
+            </div>
+            <div class="line" data-line="2">
+                <div class="protocol loading" id="opp-protocol-2">Loading...</div>
+                <div class="stack" id="opp-stack-2"></div>
+                <div class="stack" id="my-stack-2"></div>
+                <div class="protocol loading" id="my-protocol-2">Loading...</div>
+            </div>
+        </div>
+
+        <div class="player-area" id="my-area">
+            <div class="info-panel">
+                <span>You</span>
+                <span>Hand: <span id="my-hand-count">5</span></span>
+                <span>Deck: <span id="my-deck-count">13</span></span>
+                <span>Trash: <span id="my-trash-count">0</span></span>
+                <span id="turn-indicator">Your Turn</span>
+            </div>
+            <div class="hand" id="my-hand"></div>
+            <div class="action-buttons">
+                <button onclick="refreshHand()" id="refresh-btn">Refresh Hand</button>
+                <button onclick="endTurn()" id="end-turn-btn">End Turn</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Protocol definitions with command cards
+        const PROTOCOLS = {
+            chaos: { color: '#d946ef', commands: generateCommands('chaos') },
+            clarity: { color: '#94a3b8', commands: generateCommands('clarity') },
+            corruption: { color: '#65a30d', commands: generateCommands('corruption') },
+            courage: { color: '#fb923c', commands: generateCommands('courage') },
+            fear: { color: '#f97316', commands: generateCommands('fear') },
+            gravity: { color: '#7c3aed', commands: generateCommands('gravity') },
+            ice: { color: '#c084fc', commands: generateCommands('ice') },
+            life: { color: '#14b8a6', commands: generateCommands('life') },
+            light: { color: '#fdba74', commands: generateCommands('light') },
+            luck: { color: '#5eead4', commands: generateCommands('luck') },
+            metal: { color: '#9ca3af', commands: generateCommands('metal') },
+            mirror: { color: '#f43f5e', commands: generateCommands('mirror') },
+            peace: { color: '#fde047', commands: generateCommands('peace') },
+            plague: { color: '#10b981', commands: generateCommands('plague') },
+            psychic: { color: '#a855f7', commands: generateCommands('psychic') },
+            smoke: { color: '#14b8a6', commands: generateCommands('smoke') },
+            speed: { color: '#94a3b8', commands: generateCommands('speed') },
+            spirit: { color: '#3b82f6', commands: generateCommands('spirit') },
+            time: { color: '#f87171', commands: generateCommands('time') },
+            war: { color: '#7f1d1d', commands: generateCommands('war') },
+            water: { color: '#3b82f6', commands: generateCommands('water') }
+        };
+
+        function generateCommands(protocol) {
+            const commands = [];
+            for (let i = 0; i < 6; i++) {
+                commands.push({
+                    protocol: protocol,
+                    value: i,
+                    topText: `${protocol} persistent ${i}`,
+                    middleText: `Play: ${protocol} effect ${i}`,
+                    bottomText: `Auxiliary: ${protocol} trigger ${i}`
+                });
+            }
+            return commands;
+        }
+
+        // Game state
+        let peer = null;
+        let conn = null;
+        let gameState = {
+            phase: 'connecting',
+            myProtocols: [],
+            opponentProtocols: [],
+            myDeck: [],
+            myHand: [],
+            myTrash: [],
+            opponentHandCount: 5,
+            opponentDeckCount: 13,
+            opponentTrashCount: 0,
+            field: [
+                { oppStack: [], myStack: [] },
+                { oppStack: [], myStack: [] },
+                { oppStack: [], myStack: [] }
+            ],
+            currentTurn: null,
+            isHost: false,
+            hasControl: false,
+            draftOrder: [],
+            currentDraftPick: 0
+        };
+
+        // Initialize PeerJS
+        function initPeer() {
+            peer = new Peer();
+            
+            peer.on('open', (id) => {
+                document.getElementById('my-id').value = id;
+                document.getElementById('connection-status').textContent = 'Waiting for connection...';
+            });
+
+            peer.on('connection', (connection) => {
+                conn = connection;
+                gameState.isHost = true;
+                setupConnection();
+            });
+
+            peer.on('error', (err) => {
+                console.error('PeerJS error:', err);
+                document.getElementById('connection-status').textContent = 'Error: ' + err.message;
+            });
+        }
+
+        function connectToPeer() {
+            const peerId = document.getElementById('peer-id').value;
+            if (!peerId) return;
+
+            conn = peer.connect(peerId);
+            setupConnection();
+        }
+
+        function setupConnection() {
+            conn.on('open', () => {
+                document.getElementById('connection-status').textContent = 'Connected!';
+                setTimeout(() => {
+                    document.getElementById('connection-screen').classList.add('hidden');
+                    if (gameState.isHost) {
+                        startDraft();
+                    }
+                }, 1000);
+            });
+
+            conn.on('data', (data) => {
+                handleMessage(data);
+            });
+
+            conn.on('close', () => {
+                alert('Connection lost!');
+                location.reload();
+            });
+        }
+
+        function handleMessage(data) {
+            switch(data.type) {
+                case 'startDraft':
+                    gameState.draftOrder = data.order;
+                    gameState.currentDraftPick = data.currentPick;
+                    showDraft();
+                    break;
+                case 'draftPick':
+                    handleOpponentDraftPick(data.protocols);
+                    break;
+                case 'startGame':
+                    gameState.opponentProtocols = data.opponentProtocols;
+                    gameState.currentTurn = data.firstPlayer;
+                    startGame();
+                    break;
+                case 'playCard':
+                    handleOpponentPlayCard(data);
+                    break;
+                case 'refreshHand':
+                    gameState.opponentHandCount = 5;
+                    updateUI();
+                    break;
+                case 'endTurn':
+                    gameState.currentTurn = 'me';
+                    updateUI();
+                    break;
+                case 'gameState':
+                    syncGameState(data.state);
+                    break;
+            }
+        }
+
+        function startDraft() {
+            const protocols = Object.keys(PROTOCOLS);
+            const shuffled = protocols.sort(() => Math.random() - 0.5);
+            gameState.draftOrder = shuffled.slice(0, 12); // Use 12 protocols for draft
+            gameState.currentDraftPick = 0;
+            
+            conn.send({
+                type: 'startDraft',
+                order: gameState.draftOrder,
+                currentPick: 0
+            });
+            
+            showDraft();
+        }
+
+        function showDraft() {
+            document.getElementById('draft-screen').classList.remove('hidden');
+            updateDraftUI();
+        }
+
+        function updateDraftUI() {
+            const draftArea = document.getElementById('draft-area');
+            draftArea.innerHTML = '';
+            
+            gameState.draftOrder.forEach((protocol, index) => {
+                const protocolDiv = document.createElement('div');
+                protocolDiv.className = `protocol protocol-${protocol} protocol-select`;
+                protocolDiv.textContent = protocol.toUpperCase();
+                protocolDiv.onclick = () => selectProtocol(protocol);
+                
+                // Mark as selected if already picked
+                if (gameState.myProtocols.includes(protocol) || 
+                    gameState.opponentProtocols.includes(protocol)) {
+                    protocolDiv.classList.add('selected');
+                }
+                
+                draftArea.appendChild(protocolDiv);
+            });
+            
+            // Update status
+            const status = document.getElementById('status');
+            const pickOrder = [1, 2, 2, 2, 2, 1]; // Draft order
+            const currentPickCount = pickOrder[gameState.currentDraftPick] || 0;
+            
+            if (gameState.currentDraftPick >= 6) {
+                status.textContent = 'Draft complete! Starting game...';
+                setTimeout(() => finalizeDraft(), 2000);
+            } else {
+                const isMyTurn = (gameState.currentDraftPick % 2 === 0 && gameState.isHost) ||
+                                 (gameState.currentDraftPick % 2 === 1 && !gameState.isHost);
+                status.textContent = isMyTurn ? 
+                    `Your turn - Pick ${currentPickCount} protocol(s)` : 
+                    'Waiting for opponent...';
+            }
+            
+            // Update selected protocols display
+            document.getElementById('my-protocols').textContent = 
+                gameState.myProtocols.join(', ').toUpperCase() || 'None';
+        }
+
+        function selectProtocol(protocol) {
+            const pickOrder = [1, 2, 2, 2, 2, 1];
+            const currentPickCount = pickOrder[gameState.currentDraftPick] || 0;
+            const isMyTurn = (gameState.currentDraftPick % 2 === 0 && gameState.isHost) ||
+                             (gameState.currentDraftPick % 2 === 1 && !gameState.isHost);
+            
+            if (!isMyTurn) return;
+            if (gameState.myProtocols.includes(protocol)) return;
+            if (gameState.opponentProtocols.includes(protocol)) return;
+            
+            // Temporarily store picks
+            if (!gameState.tempPicks) gameState.tempPicks = [];
+            gameState.tempPicks.push(protocol);
+            
+            if (gameState.tempPicks.length === currentPickCount) {
+                // Complete the pick
+                gameState.myProtocols.push(...gameState.tempPicks);
+                
+                conn.send({
+                    type: 'draftPick',
+                    protocols: gameState.tempPicks
+                });
+                
+                gameState.tempPicks = [];
+                gameState.currentDraftPick++;
+                updateDraftUI();
+            }
+        }
+
+        function handleOpponentDraftPick(protocols) {
+            gameState.opponentProtocols.push(...protocols);
+            gameState.currentDraftPick++;
+            updateDraftUI();
+        }
+
+        function finalizeDraft() {
+            // Create deck from selected protocols
+            gameState.myDeck = [];
+            gameState.myProtocols.forEach(protocol => {
+                gameState.myDeck.push(...PROTOCOLS[protocol].commands);
+            });
+            gameState.myDeck = shuffle(gameState.myDeck);
+            
+            // Draw starting hand
+            gameState.myHand = gameState.myDeck.splice(0, 5);
+            
+            // Determine first player
+            if (gameState.isHost) {
+                gameState.currentTurn = Math.random() < 0.5 ? 'me' : 'opponent';
+                conn.send({
+                    type: 'startGame',
+                    opponentProtocols: gameState.myProtocols,
+                    firstPlayer: gameState.currentTurn === 'me' ? 'opponent' : 'me'
+                });
+            }
+            
+            document.getElementById('draft-screen').classList.add('hidden');
+            startGame();
+        }
+
+        function startGame() {
+            document.getElementById('game-board').classList.remove('hidden');
+            updateUI();
+        }
+
+        function updateUI() {
+            // Update protocols
+            gameState.myProtocols.forEach((protocol, i) => {
+                const elem = document.getElementById(`my-protocol-${i}`);
+                elem.textContent = protocol.toUpperCase();
+                elem.className = `protocol protocol-${protocol} loading`;
+            });
+            
+            gameState.opponentProtocols.forEach((protocol, i) => {
+                const elem = document.getElementById(`opp-protocol-${i}`);
+                elem.textContent = protocol.toUpperCase();
+                elem.className = `protocol protocol-${protocol} loading`;
+            });
+            
+            // Update hand
+            const handDiv = document.getElementById('my-hand');
+            handDiv.innerHTML = '';
+            gameState.myHand.forEach((card, index) => {
+                handDiv.appendChild(createCardElement(card, index, true));
+            });
+            
+            // Update stacks
+            for (let i = 0; i < 3; i++) {
+                updateStack(`my-stack-${i}`, gameState.field[i].myStack);
+                updateStack(`opp-stack-${i}`, gameState.field[i].oppStack);
+            }
+            
+            // Update counts
+            document.getElementById('my-hand-count').textContent = gameState.myHand.length;
+            document.getElementById('my-deck-count').textContent = gameState.myDeck.length;
+            document.getElementById('my-trash-count').textContent = gameState.myTrash.length;
+            document.getElementById('opp-hand-count').textContent = gameState.opponentHandCount;
+            document.getElementById('opp-deck-count').textContent = gameState.opponentDeckCount;
+            document.getElementById('opp-trash-count').textContent = gameState.opponentTrashCount;
+            
+            // Update turn indicator
+            const turnIndicator = document.getElementById('turn-indicator');
+            turnIndicator.textContent = gameState.currentTurn === 'me' ? 'Your Turn' : "Opponent's Turn";
+            turnIndicator.style.color = gameState.currentTurn === 'me' ? '#00ff88' : '#ff4444';
+            
+            // Enable/disable buttons
+            const isMyTurn = gameState.currentTurn === 'me';
+            document.getElementById('refresh-btn').disabled = !isMyTurn || gameState.myHand.length >= 5;
+            document.getElementById('end-turn-btn').disabled = !isMyTurn;
+            
+            // Check for compile conditions
+            checkCompileConditions();
+        }
+
+        function createCardElement(card, index, inHand = false) {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = `card protocol-${card.protocol}`;
+            
+            const content = `
+                <div class="card-content">
+                    <div class="card-header">
+                        <span>${card.protocol.toUpperCase()}</span>
+                        <span class="card-value">${card.value}</span>
+                    </div>
+                    <div class="card-text">
+                        <div>${card.topText}</div>
+                        <div><strong>${card.middleText}</strong></div>
+                        <div>${card.bottomText}</div>
+                    </div>
+                </div>
+            `;
+            cardDiv.innerHTML = content;
+            
+            if (inHand) {
+                cardDiv.onclick = () => playCard(index);
+            }
+            
+            return cardDiv;
+        }
+
+        function updateStack(stackId, cards) {
+            const stackDiv = document.getElementById(stackId);
+            stackDiv.innerHTML = '';
+            cards.forEach((card, index) => {
+                const cardElem = createCardElement(card);
+                if (card.faceDown) {
+                    cardElem.classList.add('face-down');
+                }
+                stackDiv.appendChild(cardElem);
+            });
+        }
+
+        function playCard(handIndex) {
+            if (gameState.currentTurn !== 'me') return;
+            
+            const card = gameState.myHand[handIndex];
+            if (!card) return;
+            
+            // Simple line selection (you'd want a better UI for this)
+            const lineIndex = prompt('Which line? (0, 1, or 2)');
+            if (lineIndex === null || lineIndex < 0 || lineIndex > 2) return;
+            
+            const faceDown = confirm('Play face-down?');
+            
+            // Remove from hand and add to field
+            gameState.myHand.splice(handIndex, 1);
+            card.faceDown = faceDown;
+            gameState.field[lineIndex].myStack.push(card);
+            
+            // Send to opponent
+            conn.send({
+                type: 'playCard',
+                lineIndex: lineIndex,
+                card: faceDown ? { faceDown: true } : card
+            });
+            
+            updateUI();
+        }
+
+        function handleOpponentPlayCard(data) {
+            const card = data.card;
+            gameState.field[data.lineIndex].oppStack.push(card);
+            gameState.opponentHandCount--;
+            updateUI();
+        }
+
+        function refreshHand() {
+            if (gameState.currentTurn !== 'me') return;
+            if (gameState.myHand.length >= 5) return;
+            
+            while (gameState.myHand.length < 5 && gameState.myDeck.length > 0) {
+                gameState.myHand.push(gameState.myDeck.shift());
+            }
+            
+            // If deck is empty, shuffle trash
+            if (gameState.myHand.length < 5 && gameState.myTrash.length > 0) {
+                gameState.myDeck = shuffle([...gameState.myTrash]);
+                gameState.myTrash = [];
+                
+                while (gameState.myHand.length < 5 && gameState.myDeck.length > 0) {
+                    gameState.myHand.push(gameState.myDeck.shift());
+                }
+            }
+            
+            conn.send({ type: 'refreshHand' });
+            updateUI();
+        }
+
+        function endTurn() {
+            if (gameState.currentTurn !== 'me') return;
+            
+            gameState.currentTurn = 'opponent';
+            conn.send({ type: 'endTurn' });
+            updateUI();
+        }
+
+        function checkCompileConditions() {
+            // Check each line for compile conditions
+            for (let i = 0; i < 3; i++) {
+                const myValue = calculateLineValue(gameState.field[i].myStack);
+                const oppValue = calculateLineValue(gameState.field[i].oppStack);
+                
+                if (myValue >= 10 && myValue > oppValue) {
+                    // Can compile this line
+                    const myProtocol = document.getElementById(`my-protocol-${i}`);
+                    if (!myProtocol.classList.contains('compiled')) {
+                        myProtocol.style.boxShadow = '0 0 20px #00ff88';
+                    }
+                }
+            }
+        }
+
+        function calculateLineValue(stack) {
+            return stack.reduce((sum, card) => sum + (card.faceDown ? 0 : card.value), 0);
+        }
+
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initPeer();
+        });
+    </script>
+</body>
+</html>
