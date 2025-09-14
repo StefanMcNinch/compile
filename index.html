@@ -145,6 +145,7 @@
             background: linear-gradient(135deg, var(--card-bg1), var(--card-bg2));
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             margin-top: -100px;
+            color: #fff;
         }
 
         .card:first-child {
@@ -159,6 +160,14 @@
         .card.face-down .card-content {
             display: none;
         }
+        
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+            color: #fff;
+        }
 
         .card:hover {
             transform: translateY(-5px);
@@ -172,6 +181,7 @@
             font-size: 12px;
             font-weight: bold;
             margin-bottom: 5px;
+            color: #fff;
         }
 
         .card-value {
@@ -188,6 +198,7 @@
             display: flex;
             flex-direction: column;
             gap: 3px;
+            color: #fff;
         }
 
         .card-text div {
@@ -505,11 +516,28 @@
                     showDraft();
                     break;
                 case 'draftPick':
-                    handleOpponentDraftPick(data.protocols);
+                    handleOpponentDraftPick(data);
                     break;
                 case 'startGame':
                     gameState.opponentProtocols = data.opponentProtocols;
                     gameState.currentTurn = data.firstPlayer;
+                    
+                    // Non-host needs to initialize their deck when game starts
+                    if (!gameState.isHost) {
+                        console.log('Non-host creating deck with protocols:', gameState.myProtocols);
+                        gameState.myDeck = [];
+                        gameState.myProtocols.forEach(protocol => {
+                            const cards = PROTOCOLS[protocol].commands;
+                            gameState.myDeck.push(...cards);
+                        });
+                        gameState.myDeck = shuffle(gameState.myDeck);
+                        gameState.myHand = gameState.myDeck.splice(0, 5);
+                        gameState.opponentDeckCount = 13;
+                        gameState.opponentHandCount = 5;
+                        console.log('Non-host drew hand:', gameState.myHand);
+                    }
+                    
+                    document.getElementById('draft-screen').classList.add('hidden');
                     startGame();
                     break;
                 case 'playCard':
@@ -546,14 +574,15 @@
 
         function showDraft() {
             document.getElementById('draft-screen').classList.remove('hidden');
-            // Show player role
-            const playerRole = document.getElementById('player-role');
-            if (playerRole) {
-                playerRole.textContent = gameState.isHost ? 'You are Player 1 (drafting first)' : 'You are Player 2';
-            }
+            // Add player role indicator
+            const status = document.getElementById('status');
+            const roleText = gameState.isHost ? 'You are Player 1' : 'You are Player 2';
+            console.log(roleText);
             updateDraftUI();
         }
 
+        let draftFinalized = false;
+        
         function updateDraftUI() {
             const draftArea = document.getElementById('draft-area');
             draftArea.innerHTML = '';
@@ -575,18 +604,23 @@
             
             // Update status
             const status = document.getElementById('status');
-            const pickOrder = [1, 2, 2, 2, 2, 1]; // Draft order
-            const currentPickCount = pickOrder[gameState.currentDraftPick] || 0;
+            // Draft order: P1, P2, P2, P1, P1, P2 (indexes 0-5)
+            const draftPattern = [true, false, false, true, true, false]; // true = P1's turn
             
             if (gameState.currentDraftPick >= 6) {
                 status.textContent = 'Draft complete! Starting game...';
-                setTimeout(() => finalizeDraft(), 2000);
+                // Both players finalize when they have 3 protocols
+                if (gameState.myProtocols.length === 3 && !draftFinalized) {
+                    draftFinalized = true;
+                    setTimeout(() => finalizeDraft(), 2000);
+                }
             } else {
-                const isMyTurn = (gameState.currentDraftPick % 2 === 0 && gameState.isHost) ||
-                                 (gameState.currentDraftPick % 2 === 1 && !gameState.isHost);
+                const isP1Turn = draftPattern[gameState.currentDraftPick];
+                const isMyTurn = (isP1Turn && gameState.isHost) || (!isP1Turn && !gameState.isHost);
+                const pickNum = gameState.currentDraftPick + 1;
                 status.textContent = isMyTurn ? 
-                    `Your turn - Pick ${currentPickCount} protocol(s)` : 
-                    'Waiting for opponent...';
+                    `Your turn - Pick 1 protocol (Pick ${pickNum}/6)` : 
+                    `Waiting for opponent... (Pick ${pickNum}/6)`;
             }
             
             // Update selected protocols display
@@ -595,67 +629,81 @@
         }
 
         function selectProtocol(protocol) {
-            const pickOrder = [1, 2, 2, 2, 2, 1];
-            const currentPickCount = pickOrder[gameState.currentDraftPick] || 0;
-            const isMyTurn = (gameState.currentDraftPick % 2 === 0 && gameState.isHost) ||
-                             (gameState.currentDraftPick % 2 === 1 && !gameState.isHost);
+            // Draft order: P1, P2, P2, P1, P1, P2
+            const draftPattern = [true, false, false, true, true, false];
+            const isP1Turn = draftPattern[gameState.currentDraftPick];
+            const isMyTurn = (isP1Turn && gameState.isHost) || (!isP1Turn && !gameState.isHost);
             
             if (!isMyTurn) return;
             if (gameState.myProtocols.includes(protocol)) return;
             if (gameState.opponentProtocols.includes(protocol)) return;
             
-            // Temporarily store picks
-            if (!gameState.tempPicks) gameState.tempPicks = [];
-            gameState.tempPicks.push(protocol);
+            // Add the protocol
+            gameState.myProtocols.push(protocol);
             
-            if (gameState.tempPicks.length === currentPickCount) {
-                // Complete the pick
-                gameState.myProtocols.push(...gameState.tempPicks);
-                
-                conn.send({
-                    type: 'draftPick',
-                    protocols: gameState.tempPicks
-                });
-                
-                gameState.tempPicks = [];
-                gameState.currentDraftPick++;
-                updateDraftUI();
-            }
+            conn.send({
+                type: 'draftPick',
+                protocol: protocol
+            });
+            
+            gameState.currentDraftPick++;
+            updateDraftUI();
         }
 
-        function handleOpponentDraftPick(protocols) {
-            gameState.opponentProtocols.push(...protocols);
+        function handleOpponentDraftPick(data) {
+            const protocol = data.protocol || data.protocols?.[0]; // Handle both formats
+            if (protocol) {
+                gameState.opponentProtocols.push(protocol);
+            }
             gameState.currentDraftPick++;
             updateDraftUI();
         }
 
         function finalizeDraft() {
+            console.log('Finalizing draft with protocols:', gameState.myProtocols);
+            
             // Create deck from selected protocols
             gameState.myDeck = [];
             gameState.myProtocols.forEach(protocol => {
-                gameState.myDeck.push(...PROTOCOLS[protocol].commands);
+                const cards = PROTOCOLS[protocol].commands;
+                gameState.myDeck.push(...cards);
             });
             gameState.myDeck = shuffle(gameState.myDeck);
+            
+            console.log('Created deck with', gameState.myDeck.length, 'cards');
             
             // Draw starting hand
             gameState.myHand = gameState.myDeck.splice(0, 5);
             
-            // Determine first player
+            console.log('Drew starting hand:', gameState.myHand);
+            
+            // Update counts for opponent
+            gameState.opponentDeckCount = 13; // 18 cards - 5 in hand
+            gameState.opponentHandCount = 5; // Starting hand
+            
+            // Only host determines first player and sends startGame
             if (gameState.isHost) {
                 gameState.currentTurn = Math.random() < 0.5 ? 'me' : 'opponent';
-                conn.send({
-                    type: 'startGame',
-                    opponentProtocols: gameState.myProtocols,
-                    firstPlayer: gameState.currentTurn === 'me' ? 'opponent' : 'me'
-                });
+                setTimeout(() => {
+                    conn.send({
+                        type: 'startGame',
+                        opponentProtocols: gameState.myProtocols,
+                        firstPlayer: gameState.currentTurn === 'me' ? 'opponent' : 'me'
+                    });
+                    document.getElementById('draft-screen').classList.add('hidden');
+                    startGame();
+                }, 500);
             }
-            
-            document.getElementById('draft-screen').classList.add('hidden');
-            startGame();
+            // Non-host waits for startGame message
         }
 
         function startGame() {
+            console.log('Starting game...');
             document.getElementById('game-board').classList.remove('hidden');
+            console.log('My hand:', gameState.myHand);
+            console.log('My deck size:', gameState.myDeck.length);
+            console.log('My protocols:', gameState.myProtocols);
+            console.log('Opponent protocols:', gameState.opponentProtocols);
             updateUI();
         }
 
@@ -663,21 +711,27 @@
             // Update protocols
             gameState.myProtocols.forEach((protocol, i) => {
                 const elem = document.getElementById(`my-protocol-${i}`);
-                elem.textContent = protocol.toUpperCase();
-                elem.className = `protocol protocol-${protocol} loading`;
+                if (elem) {
+                    elem.textContent = protocol.toUpperCase();
+                    elem.className = `protocol protocol-${protocol} loading`;
+                }
             });
             
             gameState.opponentProtocols.forEach((protocol, i) => {
                 const elem = document.getElementById(`opp-protocol-${i}`);
-                elem.textContent = protocol.toUpperCase();
-                elem.className = `protocol protocol-${protocol} loading`;
+                if (elem) {
+                    elem.textContent = protocol.toUpperCase();
+                    elem.className = `protocol protocol-${protocol} loading`;
+                }
             });
             
             // Update hand
             const handDiv = document.getElementById('my-hand');
             handDiv.innerHTML = '';
+            console.log('Updating hand with', gameState.myHand.length, 'cards');
             gameState.myHand.forEach((card, index) => {
-                handDiv.appendChild(createCardElement(card, index, true));
+                const cardElem = createCardElement(card, index, true);
+                handDiv.appendChild(cardElem);
             });
             
             // Update stacks
@@ -709,11 +763,21 @@
         }
 
         function createCardElement(card, index, inHand = false) {
+            if (!card) {
+                console.error('No card data provided');
+                return document.createElement('div');
+            }
+            
             const cardDiv = document.createElement('div');
             cardDiv.className = `card protocol-${card.protocol}`;
             
+            // Apply colors directly
+            const color = PROTOCOLS[card.protocol].color;
+            cardDiv.style.background = `linear-gradient(135deg, ${color}, ${color}cc)`;
+            cardDiv.style.borderColor = color;
+            
             const content = `
-                <div class="card-content">
+                <div class="card-content" style="color: #fff;">
                     <div class="card-header">
                         <span>${card.protocol.toUpperCase()}</span>
                         <span class="card-value">${card.value}</span>
