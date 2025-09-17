@@ -133,12 +133,12 @@
 
         .card {
             width: 100px;
-            height: 140px;
+            height: 150px;
             border-radius: 6px;
             border: 2px solid;
             display: flex;
             flex-direction: column;
-            padding: 8px;
+            padding: 6px;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
@@ -146,6 +146,7 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
             margin-top: -100px;
             color: #fff;
+            font-size: 7px;
         }
 
         .card:first-child {
@@ -178,33 +179,39 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             color: #fff;
         }
 
         .card-value {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             color: #fff;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
         .card-text {
-            font-size: 9px;
-            line-height: 1.2;
+            font-size: 7px;
+            line-height: 1.1;
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 3px;
+            justify-content: space-between;
+            gap: 2px;
             color: #fff;
         }
 
         .card-text div {
-            padding: 3px;
+            padding: 2px 3px;
             background: rgba(0, 0, 0, 0.4);
-            border-radius: 3px;
+            border-radius: 2px;
+            min-height: 0;
+        }
+        
+        .card-text div:empty {
+            display: none;
         }
 
         .hand {
@@ -420,16 +427,194 @@
         };
 
         function generateCommands(protocol) {
+            const cardData = {
+                chaos: [
+                    { topText: "In each line, flip 1 covered card", middleText: "", bottomText: "Start: Draw the top card of your opponent's deck. Your opponent draws the top card of your deck." },
+                    { topText: "", middleText: "Rearrange your protocols. Rearrange your opponent's protocols.", bottomText: "" },
+                    { topText: "", middleText: "Shift 1 of your covered cards.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "This card may be played without matching protocols." },
+                    { topText: "", middleText: "", bottomText: "End: Discard your hand. Draw that many cards." },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                clarity: [
+                    { topText: "", middleText: "Your total value in this line is increased by 1 for each card in your hand.", bottomText: "" },
+                    { topText: "Start: Reveal the top card of your deck. You may discard the top card of your deck.", middleText: "", bottomText: "Your opponent reveals their hand." },
+                    { topText: "", middleText: "Reveal your deck. Draw 1 card with a value of 0 revealed this way. Shuffle your deck. Bury 1 card with a value of 1.", bottomText: "" },
+                    { topText: "", middleText: "Reveal your deck. Draw 1 card with a value of 0 revealed this way. Shuffle your deck.", bottomText: "" },
+                    { topText: "", middleText: "You may shuffle your trash into your deck.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                corruption: [
+                    { topText: "Start: Flip 1 face-up covered or uncovered card in this stack other than this card.", middleText: "", bottomText: "You may play this card in any line on either player's side." },
+                    { topText: "", middleText: "Return 1 card.", bottomText: "" },
+                    { topText: "After you discard cards: Your opponent discards 1 card.", middleText: "Draw 1 card. Discard 1 card.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "When a card would be returned to your opponent's hand: Put that card on top of their deck face-down instead." },
+                    { topText: "", middleText: "You may flip 1 face-up covered card.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "End: Either discard 1 card or delete this card." }
+                ],
+                courage: [
+                    { topText: "Start: If you have no cards in hand, draw 1 card.", middleText: "Draw 1 card.", bottomText: "End: You may discard 1 card. If you do, your opponent discards 2 cards." },
+                    { topText: "", middleText: "Delete 1 of your opponent's cards in a line where they have 3 higher total value than you do.", bottomText: "" },
+                    { topText: "", middleText: "Draw 1 card.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "End: If your opponent has a higher total value in this line than you do, flip this card." },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
+                    { topText: "", middleText: "End: If your opponent has a higher value in this line than you do, flip this card.", bottomText: "Shift or flip 1 card." }
+                ],
+                fear: [
+                    { topText: "", middleText: "During your turn, your opponent's cards don't have match commands.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "Draw 2 cards. Your opponent discards their hand and draws the amount of cards discarded minus 1." },
+                    { topText: "", middleText: "Return 1 of your opponent's cards.", bottomText: "" },
+                    { topText: "", middleText: "Shift 1 of your opponent's covered or uncovered cards in this line.", bottomText: "" },
+                    { topText: "", middleText: "Your opponent discards 1 random card.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                gravity: [
+                    { topText: "", middleText: "For every 2 cards in this line, play the top card of your deck face-down onto the stack.", bottomText: "" },
+                    { topText: "", middleText: "Draw 2 cards. Shift 1 card either to or from this line.", bottomText: "" },
+                    { topText: "", middleText: "Flip 1 card. Shift that card to this line.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "Shift 1 face-down card to this line.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "Your opponent plays the top card of their deck face-down in this line." }
+                ],
+                ice: [
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "You may shift this card.", bottomText: "" },
+                    { topText: "", middleText: "Shift 1 other card.", bottomText: "" },
+                    { topText: "Exit: If this card is covered, you may shift it.", middleText: "", bottomText: "This card cannot be flipped." },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
+                    { topText: "", middleText: "If you have any cards in your hand, you cannot draw cards.", bottomText: "" }
+                ],
+                life: [
+                    { topText: "", middleText: "", bottomText: "End: If this card is covered, delete this card. Play the top card of your deck face-down in each line where you have 0 cards." },
+                    { topText: "", middleText: "Flip 1 card. Flip 1 card.", bottomText: "" },
+                    { topText: "", middleText: "Draw 1 card. You may flip 1 face-down card.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "When this card would be covered: First, play the top card of your deck face-down in another line." },
+                    { topText: "", middleText: "If this card is covering a card, draw 1 card.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                light: [
+                    { topText: "", middleText: "Flip 1 card. Draw cards equal to that card's value.", bottomText: "End: Draw 1 card." },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "Draw 2 cards. Reveal 1 face-down card. You may shift or flip that card.", bottomText: "" },
+                    { topText: "", middleText: "Shift all face-down cards in this line to another line.", bottomText: "" },
+                    { topText: "", middleText: "Your opponent reveals their hand.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                luck: [
+                    { topText: "", middleText: "Stats: a number. Draw 3 cards. Discard 1 card drawn with this effect. Draw cards equal to that number. You may play it.", bottomText: "" },
+                    { topText: "", middleText: "Play the top card of your deck face-down. Flip that card, ignoring its middle command.", bottomText: "" },
+                    { topText: "", middleText: "Discard the top card of your deck. Draw cards equal to the value of the discarded card.", bottomText: "" },
+                    { topText: "", middleText: "Stats: a protocol. Discard the top card of your opponent's deck. If the discarded card matches the stated protocol, delete 1 card.", bottomText: "" },
+                    { topText: "", middleText: "Discard the top card of your deck. Delete 1 covered or uncovered card in either line with the discarded card.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "" }
+                ],
+                metal: [
+                    { topText: "", middleText: "Your opponent's total value in this line is reduced by 2.", bottomText: "You discard 1 card." },
+                    { topText: "", middleText: "Flip 1 card.", bottomText: "" },
+                    { topText: "", middleText: "Your opponent cannot play cards face-down in this line.", bottomText: "Draw 2 cards. Your opponent cannot compile on their next turn." },
+                    { topText: "", middleText: "Draw 1 card. Delete all cards in 1 other line with 6 or more cards.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
+                    { topText: "", middleText: "When this card would be covered or flipped: First, delete this card.", bottomText: "" }
+                ],
+                mirror: [
+                    { topText: "", middleText: "Your total value in this line is increased by 1 for each of your opponent's cards in this line.", bottomText: "End: You may resolve the middle command of 1 of your opponent's cards as if it were on this card." },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "Swap all of your cards in one of your stacks with another one of your stacks.", bottomText: "" },
+                    { topText: "", middleText: "Flip 1 of your cards. Flip 1 of your opponent's cards in the same line.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "After your opponent draws cards: Draw 1 card." },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                peace: [
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "Both players discard their hand.", bottomText: "End: If your hand is empty, draw 1 card." },
+                    { topText: "", middleText: "Draw 1 card. Play 1 card face-down.", bottomText: "" },
+                    { topText: "", middleText: "You may discard 1 card. Flip 1 card that has a value greater than the value of cards in your hand.", bottomText: "After you discard cards during your opponent's turn: Draw 1 card." },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
+                    { topText: "", middleText: "If you have more than 1 card in your hand, flip this card.", bottomText: "" }
+                ],
+                plague: [
+                    { topText: "", middleText: "Your opponent discards 1 card.", bottomText: "Your opponent cannot play cards in this line." },
+                    { topText: "After your opponent discards cards: Draw 1 card.", middleText: "Your opponent discards 1 card.", bottomText: "" },
+                    { topText: "", middleText: "Discard 1 or more cards. Your opponent discards the amount of cards discarded plus 1.", bottomText: "" },
+                    { topText: "", middleText: "Flip each other face-up card.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "End: Your opponent deletes 1 of their face-down cards. You may flip this card." },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                psychic: [
+                    { topText: "", middleText: "Draw 2 cards. Your opponent discards 2 cards, then reveals their hand.", bottomText: "Start: Flip this card." },
+                    { topText: "", middleText: "Your opponent can only play cards face-down.", bottomText: "" },
+                    { topText: "", middleText: "Your opponent discards 2 cards. Rearrange their protocols.", bottomText: "" },
+                    { topText: "", middleText: "Your opponent discards 1 card. Shift 1 of their cards.", bottomText: "" },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "End: You may return 1 of your opponent's cards. If you do, flip this card." }
+                ],
+                smoke: [
+                    { topText: "", middleText: "Play the top card of your deck face-down in each line with a face-down card.", bottomText: "" },
+                    { topText: "", middleText: "Flip 1 of your cards. You may shift that card.", bottomText: "" },
+                    { topText: "", middleText: "Your total value in this line is increased by 1 for each face-down card in this line.", bottomText: "" },
+                    { topText: "", middleText: "Play 1 card face-down in a line with a face-down card.", bottomText: "" },
+                    { topText: "", middleText: "Shift 1 covered face-down card.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                speed: [
+                    { topText: "", middleText: "Play 1 card.", bottomText: "" },
+                    { topText: "After you clear cache: Draw 1 card.", middleText: "Draw 2 cards.", bottomText: "" },
+                    { topText: "", middleText: "When this card would be deleted by compiling: Shift it to another line if this card is covered.", bottomText: "" },
+                    { topText: "", middleText: "Shift 1 of your other cards.", bottomText: "End: You may shift 1 of your cards. If you do, flip this card." },
+                    { topText: "", middleText: "Shift 1 of your opponent's face-down cards.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                spirit: [
+                    { topText: "", middleText: "Refresh. Draw 1 card.", bottomText: "Skip your check cache phase." },
+                    { topText: "When you play cards face-up, they may be played without matching protocols.", middleText: "Draw 2 cards.", bottomText: "Start: Either discard 1 card or flip this card." },
+                    { topText: "", middleText: "You may flip 1 card.", bottomText: "" },
+                    { topText: "After you draw cards: You may shift this card, even if this card is covered.", middleText: "", bottomText: "Swap the positions of 2 of your protocols." },
+                    { topText: "", middleText: "", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                time: [
+                    { topText: "", middleText: "Play 1 card from your trash. Shuffle your trash into your deck.", bottomText: "" },
+                    { topText: "", middleText: "Flip 1 covered card. Discard your entire deck.", bottomText: "" },
+                    { topText: "After you shuffle your deck: Draw 1 card and you may shift this card.", middleText: "", bottomText: "If there are any cards in your trash, you may shuffle your trash into your deck." },
+                    { topText: "", middleText: "Reveal 1 card from your trash. Play it face-down in another line.", bottomText: "" },
+                    { topText: "", middleText: "Draw 2 cards. Discard 2 cards.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                war: [
+                    { topText: "After you refresh: You may flip this card.", middleText: "", bottomText: "After your opponent draws cards: You may delete 1 card." },
+                    { topText: "", middleText: "", bottomText: "After your opponent refreshes: Your opponent discards 1 card." },
+                    { topText: "", middleText: "Flip 1 card.", bottomText: "After your opponent compiles: Your opponent discards 2 cards." },
+                    { topText: "", middleText: "Draw 1 card.", bottomText: "After your opponent discards cards: You may play 1 card face-down." },
+                    { topText: "", middleText: "Your opponent discards 1 card.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ],
+                water: [
+                    { topText: "", middleText: "Flip 1 other card. Flip this card.", bottomText: "" },
+                    { topText: "", middleText: "Play the top card of your deck face-down in each other line.", bottomText: "" },
+                    { topText: "", middleText: "Draw 2 cards. Rearrange your protocols.", bottomText: "" },
+                    { topText: "", middleText: "Return all cards with a value of 2 in 1 line.", bottomText: "" },
+                    { topText: "", middleText: "Return 1 of your cards.", bottomText: "" },
+                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
+                ]
+            };
+
             const commands = [];
+            const data = cardData[protocol] || [];
+            
             for (let i = 0; i < 6; i++) {
+                const card = data[i] || { topText: "", middleText: "", bottomText: "" };
                 commands.push({
                     protocol: protocol,
                     value: i,
-                    topText: `${protocol} persistent ${i}`,
-                    middleText: `Play: ${protocol} effect ${i}`,
-                    bottomText: `Auxiliary: ${protocol} trigger ${i}`
+                    topText: card.topText,
+                    middleText: card.middleText,
+                    bottomText: card.bottomText
                 });
             }
+            
             return commands;
         }
 
@@ -776,16 +961,21 @@
             cardDiv.style.background = `linear-gradient(135deg, ${color}, ${color}cc)`;
             cardDiv.style.borderColor = color;
             
+            // Build card text sections, only showing non-empty ones
+            let topSection = card.topText ? `<div style="font-size: 7px; font-style: italic;">${card.topText}</div>` : '';
+            let middleSection = card.middleText ? `<div><strong>${card.middleText}</strong></div>` : '';
+            let bottomSection = card.bottomText ? `<div style="font-size: 7px;">${card.bottomText}</div>` : '';
+            
             const content = `
                 <div class="card-content" style="color: #fff;">
                     <div class="card-header">
-                        <span>${card.protocol.toUpperCase()}</span>
+                        <span style="font-size: 10px;">${card.protocol.toUpperCase()}</span>
                         <span class="card-value">${card.value}</span>
                     </div>
                     <div class="card-text">
-                        <div>${card.topText}</div>
-                        <div><strong>${card.middleText}</strong></div>
-                        <div>${card.bottomText}</div>
+                        ${topSection}
+                        ${middleSection}
+                        ${bottomSection}
                     </div>
                 </div>
             `;
