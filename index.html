@@ -78,11 +78,25 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
-            padding: 20px;
+            padding: 40px 20px 20px;
             background: rgba(0, 0, 0, 0.5);
             border: 2px solid rgba(0, 255, 136, 0.5);
             border-radius: 10px;
             min-height: 400px;
+            position: relative;
+        }
+        
+        .field::before {
+            content: 'BATTLEFIELD';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0a0e1a;
+            padding: 0 10px;
+            color: #00ff88;
+            font-weight: bold;
+            font-size: 14px;
         }
 
         .line {
@@ -90,6 +104,25 @@
             flex-direction: column;
             gap: 10px;
             align-items: center;
+            position: relative;
+            padding: 0 5px;
+            border-right: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        
+        .line:last-child {
+            border-right: none;
+        }
+
+        .line-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ff88;
+            font-size: 12px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.3;
         }
 
         .protocol {
@@ -106,6 +139,7 @@
             transition: all 0.3s;
             position: relative;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, var(--card-bg1), var(--card-bg2));
         }
 
         .protocol.loading {
@@ -120,6 +154,15 @@
             color: #000;
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.6);
         }
+        
+        .protocol.compiled::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 20px;
+            color: #000;
+        }
 
         .stack {
             min-height: 100px;
@@ -129,45 +172,94 @@
             flex-direction: column;
             align-items: center;
             gap: -30px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            padding: 5px;
+            transition: all 0.3s;
+        }
+        
+        .stack:hover {
+            background: rgba(0, 255, 136, 0.05);
+        }
+        
+        #my-stack-0::before,
+        #my-stack-1::before,
+        #my-stack-2::before {
+            content: 'Your stack';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 10px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        #opp-stack-0::before,
+        #opp-stack-1::before,
+        #opp-stack-2::before {
+            content: 'Opponent stack';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.1);
+            font-size: 10px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .stack .card {
+            z-index: 1;
         }
 
         .card {
             width: 100px;
-            height: 150px;
+            height: 140px;
             border-radius: 6px;
             border: 2px solid;
             display: flex;
             flex-direction: column;
-            padding: 6px;
+            padding: 8px;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
             background: linear-gradient(135deg, var(--card-bg1), var(--card-bg2));
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            margin-top: -100px;
-            color: #fff;
-            font-size: 7px;
         }
 
-        .card:first-child {
+        .stack .card {
+            margin-top: -100px;
+        }
+
+        .stack .card:first-child {
             margin-top: 0;
         }
 
-        .card.face-down {
-            background: linear-gradient(135deg, #333, #111);
-            border-color: #666;
+        .hand .card {
+            margin-top: 0;
         }
 
-        .card.face-down .card-content {
+        .stack .card.face-down .card-content {
             display: none;
         }
         
-        .card-content {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            height: 100%;
-            color: #fff;
+        .stack .card.face-down::after {
+            content: '?';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: #666;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .stack .card:last-child.face-down {
+            cursor: context-menu;
         }
 
         .card:hover {
@@ -179,48 +271,48 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 10px;
+            font-size: 12px;
             font-weight: bold;
-            margin-bottom: 3px;
-            color: #fff;
+            margin-bottom: 5px;
         }
 
         .card-value {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: #fff;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
         }
 
         .card-text {
-            font-size: 7px;
-            line-height: 1.1;
+            font-size: 10px;
+            line-height: 1.3;
             flex: 1;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            gap: 2px;
+            gap: 4px;
             color: #fff;
         }
 
         .card-text div {
-            padding: 2px 3px;
-            background: rgba(0, 0, 0, 0.4);
-            border-radius: 2px;
-            min-height: 0;
+            padding: 4px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 3px;
+            font-size: 9px;
         }
-        
-        .card-text div:empty {
-            display: none;
+
+        .card-text div strong {
+            color: #fff;
+            font-weight: bold;
         }
 
         .hand {
             display: flex;
-            gap: 10px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.4);
+            gap: 15px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(0, 255, 136, 0.3);
             border-radius: 8px;
-            min-height: 170px;
+            min-height: 180px;
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
@@ -228,6 +320,32 @@
 
         .hand .card {
             margin-top: 0;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .hand .card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+        
+        .hand .card::after {
+            content: '⚙';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 12px;
+            opacity: 0;
+            color: #00ff88;
+            transition: opacity 0.3s;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        
+        .hand .card:hover::after {
+            opacity: 0.8;
         }
 
         .info-panel {
@@ -242,13 +360,16 @@
 
         .draft-area {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
             padding: 20px;
             background: rgba(0, 0, 0, 0.5);
             border: 2px solid rgba(0, 255, 136, 0.5);
             border-radius: 10px;
             margin: 20px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .protocol-select {
@@ -291,9 +412,54 @@
             animation: pulse 2s infinite;
         }
 
+        .card.last-played {
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.8);
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        .card.last-played::after {
+            content: 'NEW';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00ff88;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 8px;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 136, 0.8); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 136, 1); }
+        }
+        
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+        
+        #card-preview {
+            animation: zoomIn 0.15s ease-out;
+        }
+        
+        @keyframes zoomIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.8); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1); 
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .action-buttons {
@@ -303,28 +469,28 @@
             margin: 10px 0;
         }
 
-        /* Protocol Colors */
-        .protocol-chaos { --card-bg1: #d946ef; --card-bg2: #a21caf; border-color: #d946ef; }
-        .protocol-clarity { --card-bg1: #94a3b8; --card-bg2: #64748b; border-color: #94a3b8; }
-        .protocol-corruption { --card-bg1: #65a30d; --card-bg2: #4d7c0f; border-color: #65a30d; }
-        .protocol-courage { --card-bg1: #fb923c; --card-bg2: #ea580c; border-color: #fb923c; }
-        .protocol-fear { --card-bg1: #f97316; --card-bg2: #c2410c; border-color: #f97316; }
-        .protocol-gravity { --card-bg1: #7c3aed; --card-bg2: #5b21b6; border-color: #7c3aed; }
-        .protocol-ice { --card-bg1: #c084fc; --card-bg2: #9333ea; border-color: #c084fc; }
-        .protocol-life { --card-bg1: #14b8a6; --card-bg2: #0d9488; border-color: #14b8a6; }
-        .protocol-light { --card-bg1: #fdba74; --card-bg2: #f97316; border-color: #fdba74; }
-        .protocol-luck { --card-bg1: #5eead4; --card-bg2: #2dd4bf; border-color: #5eead4; }
-        .protocol-metal { --card-bg1: #9ca3af; --card-bg2: #6b7280; border-color: #9ca3af; }
-        .protocol-mirror { --card-bg1: #f43f5e; --card-bg2: #e11d48; border-color: #f43f5e; }
-        .protocol-peace { --card-bg1: #fde047; --card-bg2: #facc15; border-color: #fde047; }
-        .protocol-plague { --card-bg1: #10b981; --card-bg2: #059669; border-color: #10b981; }
-        .protocol-psychic { --card-bg1: #a855f7; --card-bg2: #7c3aed; border-color: #a855f7; }
-        .protocol-smoke { --card-bg1: #14b8a6; --card-bg2: #0d9488; border-color: #14b8a6; }
-        .protocol-speed { --card-bg1: #94a3b8; --card-bg2: #64748b; border-color: #94a3b8; }
-        .protocol-spirit { --card-bg1: #3b82f6; --card-bg2: #1e40af; border-color: #3b82f6; }
-        .protocol-time { --card-bg1: #f87171; --card-bg2: #dc2626; border-color: #f87171; }
-        .protocol-war { --card-bg1: #7f1d1d; --card-bg2: #450a0a; border-color: #7f1d1d; }
-        .protocol-water { --card-bg1: #3b82f6; --card-bg2: #1e40af; border-color: #3b82f6; }
+        /* Protocol Colors - Applied to both cards and protocol headers */
+        .protocol-chaos, .card.protocol-chaos { --card-bg1: #d946ef; --card-bg2: #a21caf; border-color: #d946ef; }
+        .protocol-clarity, .card.protocol-clarity { --card-bg1: #94a3b8; --card-bg2: #64748b; border-color: #94a3b8; }
+        .protocol-corruption, .card.protocol-corruption { --card-bg1: #65a30d; --card-bg2: #4d7c0f; border-color: #65a30d; }
+        .protocol-courage, .card.protocol-courage { --card-bg1: #fb923c; --card-bg2: #ea580c; border-color: #fb923c; }
+        .protocol-fear, .card.protocol-fear { --card-bg1: #f97316; --card-bg2: #c2410c; border-color: #f97316; }
+        .protocol-gravity, .card.protocol-gravity { --card-bg1: #7c3aed; --card-bg2: #5b21b6; border-color: #7c3aed; }
+        .protocol-ice, .card.protocol-ice { --card-bg1: #c084fc; --card-bg2: #9333ea; border-color: #c084fc; }
+        .protocol-life, .card.protocol-life { --card-bg1: #14b8a6; --card-bg2: #0d9488; border-color: #14b8a6; }
+        .protocol-light, .card.protocol-light { --card-bg1: #fdba74; --card-bg2: #f97316; border-color: #fdba74; }
+        .protocol-luck, .card.protocol-luck { --card-bg1: #5eead4; --card-bg2: #2dd4bf; border-color: #5eead4; }
+        .protocol-metal, .card.protocol-metal { --card-bg1: #9ca3af; --card-bg2: #6b7280; border-color: #9ca3af; }
+        .protocol-mirror, .card.protocol-mirror { --card-bg1: #f43f5e; --card-bg2: #e11d48; border-color: #f43f5e; }
+        .protocol-peace, .card.protocol-peace { --card-bg1: #fde047; --card-bg2: #facc15; border-color: #fde047; }
+        .protocol-plague, .card.protocol-plague { --card-bg1: #10b981; --card-bg2: #059669; border-color: #10b981; }
+        .protocol-psychic, .card.protocol-psychic { --card-bg1: #a855f7; --card-bg2: #7c3aed; border-color: #a855f7; }
+        .protocol-smoke, .card.protocol-smoke { --card-bg1: #14b8a6; --card-bg2: #0d9488; border-color: #14b8a6; }
+        .protocol-speed, .card.protocol-speed { --card-bg1: #94a3b8; --card-bg2: #64748b; border-color: #94a3b8; }
+        .protocol-spirit, .card.protocol-spirit { --card-bg1: #3b82f6; --card-bg2: #1e40af; border-color: #3b82f6; }
+        .protocol-time, .card.protocol-time { --card-bg1: #f87171; --card-bg2: #dc2626; border-color: #f87171; }
+        .protocol-war, .card.protocol-war { --card-bg1: #7f1d1d; --card-bg2: #450a0a; border-color: #7f1d1d; }
+        .protocol-water, .card.protocol-water { --card-bg1: #3b82f6; --card-bg2: #1e40af; border-color: #3b82f6; }
     </style>
 </head>
 <body>
@@ -334,6 +500,7 @@
         <div>
             <label>Your ID: </label>
             <input type="text" id="my-id" readonly>
+            <button onclick="copyId()">Copy</button>
         </div>
         <div>
             <label>Connect to: </label>
@@ -341,11 +508,23 @@
             <button onclick="connectToPeer()">Connect</button>
         </div>
         <div id="connection-status"></div>
+        <div style="margin-top: 20px; font-size: 12px; opacity: 0.7;">
+            <p>Having connection issues?</p>
+            <button onclick="useLocalMode()">Play Local Mode (Same Browser)</button>
+        </div>
     </div>
 
     <div id="draft-screen" class="hidden">
         <h2>PROTOCOL DRAFT</h2>
         <div id="status"></div>
+        <div style="text-align: center; margin: 10px;">
+            <div style="opacity: 0.8;">
+                <small>Draft Order: Player 1 picks 1 → Player 2 picks 2 → Player 1 picks 2 → Player 2 picks 1</small>
+            </div>
+            <div style="margin-top: 5px; color: #00ff88;">
+                <small id="player-role"></small>
+            </div>
+        </div>
         <div id="draft-area" class="draft-area"></div>
         <div id="selected-protocols">
             <h3>Your Protocols:</h3>
@@ -354,6 +533,11 @@
     </div>
 
     <div id="game-board" class="hidden">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <small style="color: #00ff88; opacity: 0.8;">
+                Right-click any top card in a stack to: Flip • Discard • Return to hand • Move • Delete
+            </small>
+        </div>
         <div class="player-area" id="opponent-area">
             <div class="info-panel">
                 <span>Opponent</span>
@@ -365,18 +549,21 @@
 
         <div class="field" id="field">
             <div class="line" data-line="0">
+                <div class="line-label">Line 1</div>
                 <div class="protocol loading" id="opp-protocol-0">Loading...</div>
                 <div class="stack" id="opp-stack-0"></div>
                 <div class="stack" id="my-stack-0"></div>
                 <div class="protocol loading" id="my-protocol-0">Loading...</div>
             </div>
             <div class="line" data-line="1">
+                <div class="line-label">Line 2</div>
                 <div class="protocol loading" id="opp-protocol-1">Loading...</div>
                 <div class="stack" id="opp-stack-1"></div>
                 <div class="stack" id="my-stack-1"></div>
                 <div class="protocol loading" id="my-protocol-1">Loading...</div>
             </div>
             <div class="line" data-line="2">
+                <div class="line-label">Line 3</div>
                 <div class="protocol loading" id="opp-protocol-2">Loading...</div>
                 <div class="stack" id="opp-stack-2"></div>
                 <div class="stack" id="my-stack-2"></div>
@@ -386,15 +573,21 @@
 
         <div class="player-area" id="my-area">
             <div class="info-panel">
-                <span>You</span>
+                <span style="font-weight: bold; color: #00ff88;">YOUR AREA</span>
                 <span>Hand: <span id="my-hand-count">5</span></span>
                 <span>Deck: <span id="my-deck-count">13</span></span>
                 <span>Trash: <span id="my-trash-count">0</span></span>
                 <span id="turn-indicator">Your Turn</span>
             </div>
-            <div class="hand" id="my-hand"></div>
+            <div style="color: #00ff88; text-align: center; margin: 10px 0;">
+                YOUR HAND <small style="opacity: 0.7;">(Left-click to play • Right-click for options)</small>
+            </div>
+            <div class="hand" id="my-hand">
+                <div style="color: #666; font-style: italic;">Cards will appear here after draft</div>
+            </div>
             <div class="action-buttons">
                 <button onclick="refreshHand()" id="refresh-btn">Refresh Hand</button>
+                <button onclick="countValues()" id="count-btn" title="Count the current values in each line">Count Values</button>
                 <button onclick="endTurn()" id="end-turn-btn">End Turn</button>
             </div>
         </div>
@@ -427,194 +620,25 @@
         };
 
         function generateCommands(protocol) {
-            const cardData = {
-                chaos: [
-                    { topText: "In each line, flip 1 covered card", middleText: "", bottomText: "Start: Draw the top card of your opponent's deck. Your opponent draws the top card of your deck." },
-                    { topText: "", middleText: "Rearrange your protocols. Rearrange your opponent's protocols.", bottomText: "" },
-                    { topText: "", middleText: "Shift 1 of your covered cards.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "This card may be played without matching protocols." },
-                    { topText: "", middleText: "", bottomText: "End: Discard your hand. Draw that many cards." },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                clarity: [
-                    { topText: "", middleText: "Your total value in this line is increased by 1 for each card in your hand.", bottomText: "" },
-                    { topText: "Start: Reveal the top card of your deck. You may discard the top card of your deck.", middleText: "", bottomText: "Your opponent reveals their hand." },
-                    { topText: "", middleText: "Reveal your deck. Draw 1 card with a value of 0 revealed this way. Shuffle your deck. Bury 1 card with a value of 1.", bottomText: "" },
-                    { topText: "", middleText: "Reveal your deck. Draw 1 card with a value of 0 revealed this way. Shuffle your deck.", bottomText: "" },
-                    { topText: "", middleText: "You may shuffle your trash into your deck.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                corruption: [
-                    { topText: "Start: Flip 1 face-up covered or uncovered card in this stack other than this card.", middleText: "", bottomText: "You may play this card in any line on either player's side." },
-                    { topText: "", middleText: "Return 1 card.", bottomText: "" },
-                    { topText: "After you discard cards: Your opponent discards 1 card.", middleText: "Draw 1 card. Discard 1 card.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "When a card would be returned to your opponent's hand: Put that card on top of their deck face-down instead." },
-                    { topText: "", middleText: "You may flip 1 face-up covered card.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "End: Either discard 1 card or delete this card." }
-                ],
-                courage: [
-                    { topText: "Start: If you have no cards in hand, draw 1 card.", middleText: "Draw 1 card.", bottomText: "End: You may discard 1 card. If you do, your opponent discards 2 cards." },
-                    { topText: "", middleText: "Delete 1 of your opponent's cards in a line where they have 3 higher total value than you do.", bottomText: "" },
-                    { topText: "", middleText: "Draw 1 card.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "End: If your opponent has a higher total value in this line than you do, flip this card." },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
-                    { topText: "", middleText: "End: If your opponent has a higher value in this line than you do, flip this card.", bottomText: "Shift or flip 1 card." }
-                ],
-                fear: [
-                    { topText: "", middleText: "During your turn, your opponent's cards don't have match commands.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "Draw 2 cards. Your opponent discards their hand and draws the amount of cards discarded minus 1." },
-                    { topText: "", middleText: "Return 1 of your opponent's cards.", bottomText: "" },
-                    { topText: "", middleText: "Shift 1 of your opponent's covered or uncovered cards in this line.", bottomText: "" },
-                    { topText: "", middleText: "Your opponent discards 1 random card.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                gravity: [
-                    { topText: "", middleText: "For every 2 cards in this line, play the top card of your deck face-down onto the stack.", bottomText: "" },
-                    { topText: "", middleText: "Draw 2 cards. Shift 1 card either to or from this line.", bottomText: "" },
-                    { topText: "", middleText: "Flip 1 card. Shift that card to this line.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "Shift 1 face-down card to this line.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "Your opponent plays the top card of their deck face-down in this line." }
-                ],
-                ice: [
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "You may shift this card.", bottomText: "" },
-                    { topText: "", middleText: "Shift 1 other card.", bottomText: "" },
-                    { topText: "Exit: If this card is covered, you may shift it.", middleText: "", bottomText: "This card cannot be flipped." },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
-                    { topText: "", middleText: "If you have any cards in your hand, you cannot draw cards.", bottomText: "" }
-                ],
-                life: [
-                    { topText: "", middleText: "", bottomText: "End: If this card is covered, delete this card. Play the top card of your deck face-down in each line where you have 0 cards." },
-                    { topText: "", middleText: "Flip 1 card. Flip 1 card.", bottomText: "" },
-                    { topText: "", middleText: "Draw 1 card. You may flip 1 face-down card.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "When this card would be covered: First, play the top card of your deck face-down in another line." },
-                    { topText: "", middleText: "If this card is covering a card, draw 1 card.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                light: [
-                    { topText: "", middleText: "Flip 1 card. Draw cards equal to that card's value.", bottomText: "End: Draw 1 card." },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "Draw 2 cards. Reveal 1 face-down card. You may shift or flip that card.", bottomText: "" },
-                    { topText: "", middleText: "Shift all face-down cards in this line to another line.", bottomText: "" },
-                    { topText: "", middleText: "Your opponent reveals their hand.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                luck: [
-                    { topText: "", middleText: "Stats: a number. Draw 3 cards. Discard 1 card drawn with this effect. Draw cards equal to that number. You may play it.", bottomText: "" },
-                    { topText: "", middleText: "Play the top card of your deck face-down. Flip that card, ignoring its middle command.", bottomText: "" },
-                    { topText: "", middleText: "Discard the top card of your deck. Draw cards equal to the value of the discarded card.", bottomText: "" },
-                    { topText: "", middleText: "Stats: a protocol. Discard the top card of your opponent's deck. If the discarded card matches the stated protocol, delete 1 card.", bottomText: "" },
-                    { topText: "", middleText: "Discard the top card of your deck. Delete 1 covered or uncovered card in either line with the discarded card.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "" }
-                ],
-                metal: [
-                    { topText: "", middleText: "Your opponent's total value in this line is reduced by 2.", bottomText: "You discard 1 card." },
-                    { topText: "", middleText: "Flip 1 card.", bottomText: "" },
-                    { topText: "", middleText: "Your opponent cannot play cards face-down in this line.", bottomText: "Draw 2 cards. Your opponent cannot compile on their next turn." },
-                    { topText: "", middleText: "Draw 1 card. Delete all cards in 1 other line with 6 or more cards.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
-                    { topText: "", middleText: "When this card would be covered or flipped: First, delete this card.", bottomText: "" }
-                ],
-                mirror: [
-                    { topText: "", middleText: "Your total value in this line is increased by 1 for each of your opponent's cards in this line.", bottomText: "End: You may resolve the middle command of 1 of your opponent's cards as if it were on this card." },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "Swap all of your cards in one of your stacks with another one of your stacks.", bottomText: "" },
-                    { topText: "", middleText: "Flip 1 of your cards. Flip 1 of your opponent's cards in the same line.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "After your opponent draws cards: Draw 1 card." },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                peace: [
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "Both players discard their hand.", bottomText: "End: If your hand is empty, draw 1 card." },
-                    { topText: "", middleText: "Draw 1 card. Play 1 card face-down.", bottomText: "" },
-                    { topText: "", middleText: "You may discard 1 card. Flip 1 card that has a value greater than the value of cards in your hand.", bottomText: "After you discard cards during your opponent's turn: Draw 1 card." },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" },
-                    { topText: "", middleText: "If you have more than 1 card in your hand, flip this card.", bottomText: "" }
-                ],
-                plague: [
-                    { topText: "", middleText: "Your opponent discards 1 card.", bottomText: "Your opponent cannot play cards in this line." },
-                    { topText: "After your opponent discards cards: Draw 1 card.", middleText: "Your opponent discards 1 card.", bottomText: "" },
-                    { topText: "", middleText: "Discard 1 or more cards. Your opponent discards the amount of cards discarded plus 1.", bottomText: "" },
-                    { topText: "", middleText: "Flip each other face-up card.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "End: Your opponent deletes 1 of their face-down cards. You may flip this card." },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                psychic: [
-                    { topText: "", middleText: "Draw 2 cards. Your opponent discards 2 cards, then reveals their hand.", bottomText: "Start: Flip this card." },
-                    { topText: "", middleText: "Your opponent can only play cards face-down.", bottomText: "" },
-                    { topText: "", middleText: "Your opponent discards 2 cards. Rearrange their protocols.", bottomText: "" },
-                    { topText: "", middleText: "Your opponent discards 1 card. Shift 1 of their cards.", bottomText: "" },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "End: You may return 1 of your opponent's cards. If you do, flip this card." }
-                ],
-                smoke: [
-                    { topText: "", middleText: "Play the top card of your deck face-down in each line with a face-down card.", bottomText: "" },
-                    { topText: "", middleText: "Flip 1 of your cards. You may shift that card.", bottomText: "" },
-                    { topText: "", middleText: "Your total value in this line is increased by 1 for each face-down card in this line.", bottomText: "" },
-                    { topText: "", middleText: "Play 1 card face-down in a line with a face-down card.", bottomText: "" },
-                    { topText: "", middleText: "Shift 1 covered face-down card.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                speed: [
-                    { topText: "", middleText: "Play 1 card.", bottomText: "" },
-                    { topText: "After you clear cache: Draw 1 card.", middleText: "Draw 2 cards.", bottomText: "" },
-                    { topText: "", middleText: "When this card would be deleted by compiling: Shift it to another line if this card is covered.", bottomText: "" },
-                    { topText: "", middleText: "Shift 1 of your other cards.", bottomText: "End: You may shift 1 of your cards. If you do, flip this card." },
-                    { topText: "", middleText: "Shift 1 of your opponent's face-down cards.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                spirit: [
-                    { topText: "", middleText: "Refresh. Draw 1 card.", bottomText: "Skip your check cache phase." },
-                    { topText: "When you play cards face-up, they may be played without matching protocols.", middleText: "Draw 2 cards.", bottomText: "Start: Either discard 1 card or flip this card." },
-                    { topText: "", middleText: "You may flip 1 card.", bottomText: "" },
-                    { topText: "After you draw cards: You may shift this card, even if this card is covered.", middleText: "", bottomText: "Swap the positions of 2 of your protocols." },
-                    { topText: "", middleText: "", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                time: [
-                    { topText: "", middleText: "Play 1 card from your trash. Shuffle your trash into your deck.", bottomText: "" },
-                    { topText: "", middleText: "Flip 1 covered card. Discard your entire deck.", bottomText: "" },
-                    { topText: "After you shuffle your deck: Draw 1 card and you may shift this card.", middleText: "", bottomText: "If there are any cards in your trash, you may shuffle your trash into your deck." },
-                    { topText: "", middleText: "Reveal 1 card from your trash. Play it face-down in another line.", bottomText: "" },
-                    { topText: "", middleText: "Draw 2 cards. Discard 2 cards.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                war: [
-                    { topText: "After you refresh: You may flip this card.", middleText: "", bottomText: "After your opponent draws cards: You may delete 1 card." },
-                    { topText: "", middleText: "", bottomText: "After your opponent refreshes: Your opponent discards 1 card." },
-                    { topText: "", middleText: "Flip 1 card.", bottomText: "After your opponent compiles: Your opponent discards 2 cards." },
-                    { topText: "", middleText: "Draw 1 card.", bottomText: "After your opponent discards cards: You may play 1 card face-down." },
-                    { topText: "", middleText: "Your opponent discards 1 card.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ],
-                water: [
-                    { topText: "", middleText: "Flip 1 other card. Flip this card.", bottomText: "" },
-                    { topText: "", middleText: "Play the top card of your deck face-down in each other line.", bottomText: "" },
-                    { topText: "", middleText: "Draw 2 cards. Rearrange your protocols.", bottomText: "" },
-                    { topText: "", middleText: "Return all cards with a value of 2 in 1 line.", bottomText: "" },
-                    { topText: "", middleText: "Return 1 of your cards.", bottomText: "" },
-                    { topText: "", middleText: "You discard 1 card.", bottomText: "" }
-                ]
-            };
-
             const commands = [];
-            const data = cardData[protocol] || [];
+            const effects = [
+                { top: 'Start:', mid: 'Draw 1 card', bot: 'End: +1 value' },
+                { top: 'Persistent', mid: 'Flip 1 card', bot: 'Discard 1 card' },
+                { top: 'While active', mid: 'Shift 1 card', bot: 'Return 1 card' },
+                { top: 'Start: Draw', mid: 'Delete 1 card', bot: 'Compile +2' },
+                { top: 'Always', mid: 'Reveal hand', bot: 'Draw 2, discard 1' },
+                { top: 'Control', mid: 'Rearrange', bot: 'End: Refresh' }
+            ];
             
             for (let i = 0; i < 6; i++) {
-                const card = data[i] || { topText: "", middleText: "", bottomText: "" };
                 commands.push({
                     protocol: protocol,
                     value: i,
-                    topText: card.topText,
-                    middleText: card.middleText,
-                    bottomText: card.bottomText
+                    topText: effects[i].top,
+                    middleText: effects[i].mid,
+                    bottomText: effects[i].bot
                 });
             }
-            
             return commands;
         }
 
@@ -643,33 +667,195 @@
             currentDraftPick: 0
         };
 
+        function copyId() {
+            const idInput = document.getElementById('my-id');
+            idInput.select();
+            document.execCommand('copy');
+            
+            const status = document.getElementById('connection-status');
+            const oldText = status.textContent;
+            status.textContent = 'ID copied to clipboard!';
+            status.style.color = '#00ff88';
+            
+            setTimeout(() => {
+                status.textContent = oldText;
+            }, 2000);
+        }
+
+        function useLocalMode() {
+            // Simulate a connection for local play
+            document.getElementById('connection-status').textContent = 'Starting local mode...';
+            document.getElementById('connection-status').style.color = '#00ff88';
+            
+            // Create a mock connection
+            conn = {
+                send: (data) => {
+                    // In local mode, handle both sides
+                    if (data.type === 'startGame') {
+                        // Simulate receiving the start game message
+                        setTimeout(() => {
+                            gameState.opponentProtocols = data.opponentProtocols;
+                            gameState.currentTurn = data.firstPlayer === 'me' ? 'opponent' : 'me';
+                        }, 100);
+                    }
+                },
+                on: (event, callback) => {
+                    // Store callbacks for local mode
+                    if (!window.localCallbacks) window.localCallbacks = {};
+                    window.localCallbacks[event] = callback;
+                }
+            };
+            
+            gameState.isHost = true;
+            gameState.isLocalMode = true;
+            
+            setTimeout(() => {
+                document.getElementById('connection-screen').classList.add('hidden');
+                startDraft();
+            }, 1000);
+        }
+
+        function handleLocalMessage(data) {
+            // In local mode, simulate opponent actions
+            switch(data.type) {
+                case 'startDraft':
+                    // Auto-pick for opponent in local mode
+                    setTimeout(() => autoPickForOpponent(), 2000);
+                    break;
+                case 'playCard':
+                    // Mirror the play for local testing
+                    break;
+                // Add more local mode handlers as needed
+            }
+        }
+
+        function autoPickForOpponent() {
+            // Simulate opponent picking in local mode
+            const availableProtocols = gameState.draftOrder.filter(p => 
+                !gameState.myProtocols.includes(p) && 
+                !gameState.opponentProtocols.includes(p)
+            );
+            
+            const pickOrder = [1, 2, 2, 1]; // Correct draft order
+            const pickCount = pickOrder[gameState.currentDraftPick] || 0;
+            
+            // Check if it's opponent's turn
+            const isOpponentTurn = (gameState.currentDraftPick === 1) || (gameState.currentDraftPick === 3);
+            
+            if (isOpponentTurn && availableProtocols.length >= pickCount) {
+                const picks = availableProtocols.slice(0, pickCount);
+                handleOpponentDraftPick(picks);
+            }
+        }
+
         // Initialize PeerJS
         function initPeer() {
-            peer = new Peer();
-            
-            peer.on('open', (id) => {
-                document.getElementById('my-id').value = id;
-                document.getElementById('connection-status').textContent = 'Waiting for connection...';
-            });
+            try {
+                // Generate random ID if needed
+                const randomId = 'compile-' + Math.random().toString(36).substr(2, 9);
+                
+                peer = new Peer(randomId, {
+                    debug: 2, // Set debug level for better error messages
+                    config: {
+                        'iceServers': [
+                            { urls: 'stun:stun.l.google.com:19302' },
+                            { urls: 'stun:stun1.l.google.com:19302' }
+                        ]
+                    }
+                });
+                
+                peer.on('open', (id) => {
+                    console.log('Peer opened with ID:', id);
+                    document.getElementById('my-id').value = id;
+                    document.getElementById('connection-status').textContent = 'Ready! Share your ID with another player.';
+                    document.getElementById('connection-status').style.color = '#00ff88';
+                });
 
-            peer.on('connection', (connection) => {
-                conn = connection;
-                gameState.isHost = true;
-                setupConnection();
-            });
+                peer.on('connection', (connection) => {
+                    console.log('Incoming connection');
+                    conn = connection;
+                    gameState.isHost = true;
+                    setupConnection();
+                });
 
-            peer.on('error', (err) => {
-                console.error('PeerJS error:', err);
-                document.getElementById('connection-status').textContent = 'Error: ' + err.message;
-            });
+                peer.on('error', (err) => {
+                    console.error('PeerJS error:', err);
+                    let errorMsg = 'Connection error: ';
+                    
+                    if (err.type === 'network') {
+                        errorMsg += 'Network error. Check your internet connection.';
+                    } else if (err.type === 'peer-unavailable') {
+                        errorMsg += 'Peer ID not found. Check the ID and try again.';
+                    } else if (err.type === 'browser-incompatible') {
+                        errorMsg += 'Browser not compatible. Try Chrome, Firefox, or Edge.';
+                    } else if (err.type === 'server-error') {
+                        errorMsg += 'Server error. Try refreshing the page or use Local Mode.';
+                    } else if (err.type === 'unavailable-id') {
+                        errorMsg += 'ID already taken. Refreshing...';
+                        setTimeout(() => initPeer(), 1000);
+                        return;
+                    } else {
+                        errorMsg += (err.message || 'Unknown error occurred.') + ' Try Local Mode instead.';
+                    }
+                    
+                    document.getElementById('connection-status').textContent = errorMsg;
+                    document.getElementById('connection-status').style.color = '#ff4444';
+                });
+                
+                peer.on('disconnected', () => {
+                    console.log('Peer disconnected');
+                    document.getElementById('connection-status').textContent = 'Disconnected. Attempting to reconnect...';
+                    document.getElementById('connection-status').style.color = '#ffaa00';
+                    
+                    // Try to reconnect
+                    if (peer && !peer.destroyed) {
+                        peer.reconnect();
+                    }
+                });
+                
+                peer.on('close', () => {
+                    console.log('Peer connection closed');
+                    document.getElementById('connection-status').textContent = 'Connection closed.';
+                    document.getElementById('connection-status').style.color = '#ff4444';
+                });
+                
+            } catch (err) {
+                console.error('Failed to initialize peer:', err);
+                document.getElementById('connection-status').textContent = 
+                    'Failed to initialize connection. Try using Local Mode or refresh the page.';
+                document.getElementById('connection-status').style.color = '#ff4444';
+            }
         }
 
         function connectToPeer() {
-            const peerId = document.getElementById('peer-id').value;
-            if (!peerId) return;
+            const peerId = document.getElementById('peer-id').value.trim();
+            if (!peerId) {
+                document.getElementById('connection-status').textContent = 'Please enter a peer ID';
+                document.getElementById('connection-status').style.color = '#ffaa00';
+                return;
+            }
 
-            conn = peer.connect(peerId);
-            setupConnection();
+            document.getElementById('connection-status').textContent = 'Connecting...';
+            document.getElementById('connection-status').style.color = '#ffaa00';
+            
+            try {
+                conn = peer.connect(peerId, {
+                    reliable: true,
+                    serialization: 'json'
+                });
+                
+                conn.on('error', (err) => {
+                    console.error('Connection error:', err);
+                    document.getElementById('connection-status').textContent = 'Failed to connect. Check the ID and try again.';
+                    document.getElementById('connection-status').style.color = '#ff4444';
+                });
+                
+                setupConnection();
+            } catch (err) {
+                console.error('Failed to connect:', err);
+                document.getElementById('connection-status').textContent = 'Connection failed: ' + err.message;
+                document.getElementById('connection-status').style.color = '#ff4444';
+            }
         }
 
         function setupConnection() {
@@ -701,28 +887,11 @@
                     showDraft();
                     break;
                 case 'draftPick':
-                    handleOpponentDraftPick(data);
+                    handleOpponentDraftPick(data.protocols);
                     break;
                 case 'startGame':
                     gameState.opponentProtocols = data.opponentProtocols;
                     gameState.currentTurn = data.firstPlayer;
-                    
-                    // Non-host needs to initialize their deck when game starts
-                    if (!gameState.isHost) {
-                        console.log('Non-host creating deck with protocols:', gameState.myProtocols);
-                        gameState.myDeck = [];
-                        gameState.myProtocols.forEach(protocol => {
-                            const cards = PROTOCOLS[protocol].commands;
-                            gameState.myDeck.push(...cards);
-                        });
-                        gameState.myDeck = shuffle(gameState.myDeck);
-                        gameState.myHand = gameState.myDeck.splice(0, 5);
-                        gameState.opponentDeckCount = 13;
-                        gameState.opponentHandCount = 5;
-                        console.log('Non-host drew hand:', gameState.myHand);
-                    }
-                    
-                    document.getElementById('draft-screen').classList.add('hidden');
                     startGame();
                     break;
                 case 'playCard':
@@ -734,6 +903,23 @@
                     break;
                 case 'endTurn':
                     gameState.currentTurn = 'me';
+                    // Clear last played card after a delay
+                    setTimeout(() => {
+                        lastPlayedCard = null;
+                        updateUI();
+                    }, 3000);
+                    updateUI();
+                    break;
+                case 'compileLine':
+                    handleOpponentCompile(data.lineIndex);
+                    break;
+                case 'cardAction':
+                    handleOpponentCardAction(data);
+                    break;
+                case 'handDiscard':
+                    gameState.opponentHandCount--;
+                    gameState.opponentTrashCount++;
+                    showMessage('Opponent discarded a card from hand!', 'info');
                     updateUI();
                     break;
                 case 'gameState':
@@ -741,11 +927,96 @@
                     break;
             }
         }
+        
+        function handleOpponentCardAction(data) {
+            const { action, lineIndex, stackIndex, isOpponent, fromLine, toLine } = data;
+            
+            // Note: isOpponent is from sender's perspective, so we flip it
+            const stack = isOpponent ? gameState.field[lineIndex].myStack : gameState.field[lineIndex].oppStack;
+            
+            switch(action) {
+                case 'flip':
+                    if (stack[stackIndex]) {
+                        stack[stackIndex].faceDown = !stack[stackIndex].faceDown;
+                        lastPlayedCard = {
+                            lineIndex: lineIndex,
+                            stackIndex: stackIndex,
+                            isOpponent: !isOpponent
+                        };
+                        showMessage('Opponent flipped a card!', 'info');
+                    }
+                    break;
+                case 'discard':
+                    if (stack[stackIndex]) {
+                        stack.splice(stackIndex, 1);
+                        gameState.opponentTrashCount++;
+                        showMessage('Opponent discarded a card!', 'info');
+                    }
+                    break;
+                case 'return':
+                    if (stack[stackIndex]) {
+                        stack.splice(stackIndex, 1);
+                        gameState.opponentHandCount++;
+                        showMessage('Opponent returned a card to hand!', 'info');
+                    }
+                    break;
+                case 'delete':
+                    if (stack[stackIndex]) {
+                        stack.splice(stackIndex, 1);
+                        gameState.opponentTrashCount++;
+                        showMessage('Opponent deleted a card!', 'info');
+                    }
+                    break;
+                case 'move':
+                    const fromStack = isOpponent ? gameState.field[fromLine].myStack : gameState.field[fromLine].oppStack;
+                    const toStack = isOpponent ? gameState.field[toLine].myStack : gameState.field[toLine].oppStack;
+                    if (fromStack[stackIndex]) {
+                        const card = fromStack.splice(stackIndex, 1)[0];
+                        toStack.push(card);
+                        lastPlayedCard = {
+                            lineIndex: toLine,
+                            stackIndex: toStack.length - 1,
+                            isOpponent: !isOpponent
+                        };
+                        showMessage(`Opponent moved a card to line ${toLine + 1}!`, 'info');
+                    }
+                    break;
+            }
+            
+            updateUI();
+        }
+        
+        function handleOpponentCompile(lineIndex) {
+            // Delete all cards in this line
+            gameState.field[lineIndex].myStack = [];
+            gameState.field[lineIndex].oppStack = [];
+            
+            // Mark opponent protocol as compiled
+            const oppProtocol = document.getElementById(`opp-protocol-${lineIndex}`);
+            oppProtocol.classList.remove('loading');
+            oppProtocol.classList.add('compiled');
+            
+            showMessage(`Opponent compiled ${gameState.opponentProtocols[lineIndex]}!`, 'info');
+            
+            // Check if opponent won
+            const oppCompiledCount = document.querySelectorAll('.protocol.compiled#opp-protocol-0, .protocol.compiled#opp-protocol-1, .protocol.compiled#opp-protocol-2').length;
+            
+            if (oppCompiledCount === 3) {
+                showMessage('Opponent wins! They compiled all protocols!', 'error');
+                document.getElementById('turn-indicator').textContent = 'DEFEAT';
+                document.getElementById('turn-indicator').style.color = '#ff4444';
+                document.getElementById('refresh-btn').disabled = true;
+                document.getElementById('end-turn-btn').disabled = true;
+                document.getElementById('count-btn').disabled = true;
+            }
+            
+            updateUI();
+        }
 
         function startDraft() {
             const protocols = Object.keys(PROTOCOLS);
             const shuffled = protocols.sort(() => Math.random() - 0.5);
-            gameState.draftOrder = shuffled.slice(0, 12); // Use 12 protocols for draft
+            gameState.draftOrder = shuffled.slice(0, 12); // Show 12 protocols for drafting
             gameState.currentDraftPick = 0;
             
             conn.send({
@@ -759,15 +1030,14 @@
 
         function showDraft() {
             document.getElementById('draft-screen').classList.remove('hidden');
-            // Add player role indicator
-            const status = document.getElementById('status');
-            const roleText = gameState.isHost ? 'You are Player 1' : 'You are Player 2';
-            console.log(roleText);
+            // Show player role
+            const playerRole = document.getElementById('player-role');
+            if (playerRole) {
+                playerRole.textContent = gameState.isHost ? 'You are Player 1 (drafting first)' : 'You are Player 2';
+            }
             updateDraftUI();
         }
 
-        let draftFinalized = false;
-        
         function updateDraftUI() {
             const draftArea = document.getElementById('draft-area');
             draftArea.innerHTML = '';
@@ -789,23 +1059,25 @@
             
             // Update status
             const status = document.getElementById('status');
-            // Draft order: P1, P2, P2, P1, P1, P2 (indexes 0-5)
-            const draftPattern = [true, false, false, true, true, false]; // true = P1's turn
+            const pickOrder = [1, 2, 2, 1]; // Correct draft order: P1-1, P2-2, P1-2, P2-1
+            const currentPickCount = pickOrder[gameState.currentDraftPick] || 0;
             
-            if (gameState.currentDraftPick >= 6) {
+            if (gameState.currentDraftPick >= 4) {
                 status.textContent = 'Draft complete! Starting game...';
-                // Both players finalize when they have 3 protocols
-                if (gameState.myProtocols.length === 3 && !draftFinalized) {
-                    draftFinalized = true;
-                    setTimeout(() => finalizeDraft(), 2000);
-                }
+                setTimeout(() => finalizeDraft(), 2000);
             } else {
-                const isP1Turn = draftPattern[gameState.currentDraftPick];
-                const isMyTurn = (isP1Turn && gameState.isHost) || (!isP1Turn && !gameState.isHost);
-                const pickNum = gameState.currentDraftPick + 1;
+                const isMyTurn = (gameState.currentDraftPick === 0 && gameState.isHost) ||
+                                 (gameState.currentDraftPick === 1 && !gameState.isHost) ||
+                                 (gameState.currentDraftPick === 2 && gameState.isHost) ||
+                                 (gameState.currentDraftPick === 3 && !gameState.isHost);
                 status.textContent = isMyTurn ? 
-                    `Your turn - Pick 1 protocol (Pick ${pickNum}/6)` : 
-                    `Waiting for opponent... (Pick ${pickNum}/6)`;
+                    `Your turn - Pick ${currentPickCount} protocol(s)` : 
+                    'Waiting for opponent...';
+                    
+                // In local mode, auto-pick for opponent
+                if (gameState.isLocalMode && !isMyTurn) {
+                    setTimeout(() => autoPickForOpponent(), 1500);
+                }
             }
             
             // Update selected protocols display
@@ -814,32 +1086,74 @@
         }
 
         function selectProtocol(protocol) {
-            // Draft order: P1, P2, P2, P1, P1, P2
-            const draftPattern = [true, false, false, true, true, false];
-            const isP1Turn = draftPattern[gameState.currentDraftPick];
-            const isMyTurn = (isP1Turn && gameState.isHost) || (!isP1Turn && !gameState.isHost);
+            const pickOrder = [1, 2, 2, 1]; // Correct draft order: P1-1, P2-2, P1-2, P2-1
+            const currentPickCount = pickOrder[gameState.currentDraftPick] || 0;
+            const isMyTurn = (gameState.currentDraftPick === 0 && gameState.isHost) ||
+                             (gameState.currentDraftPick === 1 && !gameState.isHost) ||
+                             (gameState.currentDraftPick === 2 && gameState.isHost) ||
+                             (gameState.currentDraftPick === 3 && !gameState.isHost);
             
             if (!isMyTurn) return;
             if (gameState.myProtocols.includes(protocol)) return;
             if (gameState.opponentProtocols.includes(protocol)) return;
             
-            // Add the protocol
-            gameState.myProtocols.push(protocol);
+            // Temporarily store picks
+            if (!gameState.tempPicks) gameState.tempPicks = [];
             
-            conn.send({
-                type: 'draftPick',
-                protocol: protocol
-            });
-            
-            gameState.currentDraftPick++;
-            updateDraftUI();
+            // Toggle selection if picking multiple
+            if (currentPickCount > 1) {
+                const index = gameState.tempPicks.indexOf(protocol);
+                if (index > -1) {
+                    gameState.tempPicks.splice(index, 1);
+                    document.querySelector(`.protocol-${protocol}`).style.border = '';
+                } else if (gameState.tempPicks.length < currentPickCount) {
+                    gameState.tempPicks.push(protocol);
+                    document.querySelector(`.protocol-${protocol}`).style.border = '3px solid #00ff88';
+                }
+                
+                // Update status to show selection progress
+                const status = document.getElementById('status');
+                status.textContent = `Pick ${currentPickCount} protocols (${gameState.tempPicks.length}/${currentPickCount} selected)`;
+                
+                // Auto-submit when enough selected
+                if (gameState.tempPicks.length === currentPickCount) {
+                    setTimeout(() => {
+                        // Complete the pick
+                        gameState.myProtocols.push(...gameState.tempPicks);
+                        
+                        conn.send({
+                            type: 'draftPick',
+                            protocols: gameState.tempPicks
+                        });
+                        
+                        // Clear temp selections
+                        gameState.tempPicks.forEach(p => {
+                            document.querySelector(`.protocol-${p}`).style.border = '';
+                        });
+                        
+                        gameState.tempPicks = [];
+                        gameState.currentDraftPick++;
+                        updateDraftUI();
+                    }, 500);
+                }
+            } else {
+                // Single selection - immediate
+                gameState.tempPicks.push(protocol);
+                gameState.myProtocols.push(...gameState.tempPicks);
+                
+                conn.send({
+                    type: 'draftPick',
+                    protocols: gameState.tempPicks
+                });
+                
+                gameState.tempPicks = [];
+                gameState.currentDraftPick++;
+                updateDraftUI();
+            }
         }
 
-        function handleOpponentDraftPick(data) {
-            const protocol = data.protocol || data.protocols?.[0]; // Handle both formats
-            if (protocol) {
-                gameState.opponentProtocols.push(protocol);
-            }
+        function handleOpponentDraftPick(protocols) {
+            gameState.opponentProtocols.push(...protocols);
             gameState.currentDraftPick++;
             updateDraftUI();
         }
@@ -850,49 +1164,72 @@
             // Create deck from selected protocols
             gameState.myDeck = [];
             gameState.myProtocols.forEach(protocol => {
-                const cards = PROTOCOLS[protocol].commands;
-                gameState.myDeck.push(...cards);
+                const commands = PROTOCOLS[protocol].commands;
+                console.log(`Adding ${commands.length} cards for ${protocol}`);
+                gameState.myDeck.push(...commands);
             });
-            gameState.myDeck = shuffle(gameState.myDeck);
             
-            console.log('Created deck with', gameState.myDeck.length, 'cards');
+            // Shuffle the deck
+            gameState.myDeck = shuffle(gameState.myDeck);
+            console.log('Total deck size:', gameState.myDeck.length);
             
             // Draw starting hand
             gameState.myHand = gameState.myDeck.splice(0, 5);
+            console.log('Starting hand:', gameState.myHand);
             
-            console.log('Drew starting hand:', gameState.myHand);
+            // Set up opponent deck counts
+            gameState.opponentDeckCount = 13;
+            gameState.opponentHandCount = 5;
             
-            // Update counts for opponent
-            gameState.opponentDeckCount = 13; // 18 cards - 5 in hand
-            gameState.opponentHandCount = 5; // Starting hand
-            
-            // Only host determines first player and sends startGame
-            if (gameState.isHost) {
+            // Determine first player
+            if (gameState.isHost || gameState.isLocalMode) {
                 gameState.currentTurn = Math.random() < 0.5 ? 'me' : 'opponent';
-                setTimeout(() => {
+                if (conn && conn.send && !gameState.isLocalMode) {
                     conn.send({
                         type: 'startGame',
                         opponentProtocols: gameState.myProtocols,
                         firstPlayer: gameState.currentTurn === 'me' ? 'opponent' : 'me'
                     });
-                    document.getElementById('draft-screen').classList.add('hidden');
-                    startGame();
-                }, 500);
+                } else if (gameState.isLocalMode) {
+                    // In local mode, just set the opponent protocols
+                    if (gameState.opponentProtocols.length === 0) {
+                        // Pick remaining protocols for opponent in local mode
+                        const remainingProtocols = gameState.draftOrder.filter(p => 
+                            !gameState.myProtocols.includes(p)
+                        );
+                        gameState.opponentProtocols = remainingProtocols.slice(0, 3);
+                    }
+                }
             }
-            // Non-host waits for startGame message
+            
+            document.getElementById('draft-screen').classList.add('hidden');
+            startGame();
         }
 
         function startGame() {
             console.log('Starting game...');
-            document.getElementById('game-board').classList.remove('hidden');
             console.log('My hand:', gameState.myHand);
             console.log('My deck size:', gameState.myDeck.length);
-            console.log('My protocols:', gameState.myProtocols);
-            console.log('Opponent protocols:', gameState.opponentProtocols);
+            
+            document.getElementById('game-board').classList.remove('hidden');
+            
+            // Ensure we have cards if not already dealt
+            if (gameState.myHand.length === 0 && gameState.myDeck.length === 0) {
+                console.log('No cards found, generating deck...');
+                // Create deck from selected protocols if not already done
+                gameState.myProtocols.forEach(protocol => {
+                    gameState.myDeck.push(...PROTOCOLS[protocol].commands);
+                });
+                gameState.myDeck = shuffle(gameState.myDeck);
+                gameState.myHand = gameState.myDeck.splice(0, 5);
+            }
+            
             updateUI();
         }
 
         function updateUI() {
+            console.log('Updating UI - Hand size:', gameState.myHand.length);
+            
             // Update protocols
             gameState.myProtocols.forEach((protocol, i) => {
                 const elem = document.getElementById(`my-protocol-${i}`);
@@ -912,12 +1249,17 @@
             
             // Update hand
             const handDiv = document.getElementById('my-hand');
-            handDiv.innerHTML = '';
-            console.log('Updating hand with', gameState.myHand.length, 'cards');
-            gameState.myHand.forEach((card, index) => {
-                const cardElem = createCardElement(card, index, true);
-                handDiv.appendChild(cardElem);
-            });
+            if (handDiv) {
+                handDiv.innerHTML = '';
+                if (gameState.myHand.length === 0) {
+                    handDiv.innerHTML = '<div style="color: #666; font-style: italic;">No cards in hand</div>';
+                } else {
+                    gameState.myHand.forEach((card, index) => {
+                        const cardElem = createCardElement(card, index, true);
+                        handDiv.appendChild(cardElem);
+                    });
+                }
+            }
             
             // Update stacks
             for (let i = 0; i < 3; i++) {
@@ -935,100 +1277,848 @@
             
             // Update turn indicator
             const turnIndicator = document.getElementById('turn-indicator');
-            turnIndicator.textContent = gameState.currentTurn === 'me' ? 'Your Turn' : "Opponent's Turn";
-            turnIndicator.style.color = gameState.currentTurn === 'me' ? '#00ff88' : '#ff4444';
+            if (turnIndicator) {
+                turnIndicator.textContent = gameState.currentTurn === 'me' ? 'Your Turn' : "Opponent's Turn";
+                turnIndicator.style.color = gameState.currentTurn === 'me' ? '#00ff88' : '#ff4444';
+            }
             
             // Enable/disable buttons
             const isMyTurn = gameState.currentTurn === 'me';
-            document.getElementById('refresh-btn').disabled = !isMyTurn || gameState.myHand.length >= 5;
-            document.getElementById('end-turn-btn').disabled = !isMyTurn;
+            const refreshBtn = document.getElementById('refresh-btn');
+            const endTurnBtn = document.getElementById('end-turn-btn');
+            const countBtn = document.getElementById('count-btn');
+            if (refreshBtn) refreshBtn.disabled = !isMyTurn || gameState.myHand.length >= 5;
+            if (endTurnBtn) endTurnBtn.disabled = !isMyTurn;
+            if (countBtn) countBtn.disabled = false; // Always allow counting
             
-            // Check for compile conditions
+            // Update compile buttons based on turn
             checkCompileConditions();
         }
 
         function createCardElement(card, index, inHand = false) {
-            if (!card) {
-                console.error('No card data provided');
-                return document.createElement('div');
-            }
-            
             const cardDiv = document.createElement('div');
             cardDiv.className = `card protocol-${card.protocol}`;
             
-            // Apply colors directly
-            const color = PROTOCOLS[card.protocol].color;
-            cardDiv.style.background = `linear-gradient(135deg, ${color}, ${color}cc)`;
-            cardDiv.style.borderColor = color;
-            
-            // Build card text sections, only showing non-empty ones
-            let topSection = card.topText ? `<div style="font-size: 7px; font-style: italic;">${card.topText}</div>` : '';
-            let middleSection = card.middleText ? `<div><strong>${card.middleText}</strong></div>` : '';
-            let bottomSection = card.bottomText ? `<div style="font-size: 7px;">${card.bottomText}</div>` : '';
-            
             const content = `
-                <div class="card-content" style="color: #fff;">
+                <div class="card-content">
                     <div class="card-header">
-                        <span style="font-size: 10px;">${card.protocol.toUpperCase()}</span>
+                        <span style="text-transform: uppercase; font-size: 10px;">${card.protocol}</span>
                         <span class="card-value">${card.value}</span>
                     </div>
                     <div class="card-text">
-                        ${topSection}
-                        ${middleSection}
-                        ${bottomSection}
+                        <div style="font-size: 8px; opacity: 0.9;">${card.topText}</div>
+                        <div style="background: rgba(255,255,255,0.1);"><strong>${card.middleText}</strong></div>
+                        <div style="font-size: 8px; opacity: 0.9;">${card.bottomText}</div>
                     </div>
                 </div>
             `;
             cardDiv.innerHTML = content;
             
             if (inHand) {
-                cardDiv.onclick = () => playCard(index);
+                cardDiv.onclick = () => selectCard(index);
+                cardDiv.oncontextmenu = (e) => showHandCardMenu(e, index);
+                cardDiv.title = 'Left-click to play, right-click for options';
+                
+                // Add hover zoom preview for hand cards
+                cardDiv.onmouseenter = (e) => showCardPreview(e, card);
+                cardDiv.onmouseleave = () => hideCardPreview();
             }
             
             return cardDiv;
         }
+        
+        function showHandCardMenu(e, handIndex) {
+            e.preventDefault();
+            
+            // Remove any existing context menu
+            const existing = document.getElementById('context-menu');
+            if (existing) existing.remove();
+            
+            if (gameState.currentTurn !== 'me') {
+                showMessage('Not your turn!', 'error');
+                return;
+            }
+            
+            const card = gameState.myHand[handIndex];
+            if (!card) return;
+            
+            const menu = document.createElement('div');
+            menu.id = 'context-menu';
+            menu.style.cssText = `
+                position: fixed;
+                left: ${e.pageX}px;
+                top: ${e.pageY}px;
+                background: rgba(0, 0, 0, 0.95);
+                border: 1px solid #00ff88;
+                border-radius: 5px;
+                padding: 0;
+                z-index: 1000;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            `;
+            
+            // Play card option
+            const playBtn = document.createElement('button');
+            playBtn.textContent = 'Play Card';
+            playBtn.style.cssText = `
+                display: block;
+                width: 100%;
+                padding: 8px 15px;
+                background: transparent;
+                color: #00ff88;
+                border: none;
+                text-align: left;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: 12px;
+                transition: all 0.2s;
+            `;
+            playBtn.onmouseover = () => playBtn.style.background = 'rgba(0, 255, 136, 0.2)';
+            playBtn.onmouseout = () => playBtn.style.background = 'transparent';
+            playBtn.onclick = () => {
+                menu.remove();
+                selectCard(handIndex);
+            };
+            menu.appendChild(playBtn);
+            
+            // Discard option
+            const discardBtn = document.createElement('button');
+            discardBtn.textContent = 'Discard Card';
+            discardBtn.style.cssText = `
+                display: block;
+                width: 100%;
+                padding: 8px 15px;
+                background: transparent;
+                color: #ffaa00;
+                border: none;
+                text-align: left;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: 12px;
+                transition: all 0.2s;
+            `;
+            discardBtn.onmouseover = () => discardBtn.style.background = 'rgba(255, 170, 0, 0.2)';
+            discardBtn.onmouseout = () => discardBtn.style.background = 'transparent';
+            discardBtn.onclick = () => {
+                discardHandCard(handIndex);
+                menu.remove();
+            };
+            menu.appendChild(discardBtn);
+            
+            // Cancel option
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.style.cssText = `
+                display: block;
+                width: 100%;
+                padding: 8px 15px;
+                background: transparent;
+                color: #ff4444;
+                border: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                text-align: left;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: 12px;
+            `;
+            cancelBtn.onclick = () => menu.remove();
+            menu.appendChild(cancelBtn);
+            
+            document.body.appendChild(menu);
+            
+            // Remove menu when clicking elsewhere
+            setTimeout(() => {
+                document.addEventListener('click', function removeMenu() {
+                    menu.remove();
+                    document.removeEventListener('click', removeMenu);
+                });
+            }, 100);
+        }
+        
+        function discardHandCard(handIndex) {
+            const card = gameState.myHand.splice(handIndex, 1)[0];
+            if (card) {
+                gameState.myTrash.push(card);
+                
+                // Send action to opponent
+                if (conn && conn.send) {
+                    conn.send({
+                        type: 'handDiscard'
+                    });
+                }
+                
+                showMessage('Card discarded from hand!', 'info');
+                updateUI();
+            }
+        }
 
         function updateStack(stackId, cards) {
             const stackDiv = document.getElementById(stackId);
+            if (!stackDiv) return;
+            
             stackDiv.innerHTML = '';
+            const isOpponentStack = stackId.includes('opp-stack');
+            const lineIndex = parseInt(stackId.split('-')[2]);
+            
             cards.forEach((card, index) => {
                 const cardElem = createCardElement(card);
                 if (card.faceDown) {
                     cardElem.classList.add('face-down');
                 }
+                
+                // Check if this is the last played card
+                if (lastPlayedCard && 
+                    lastPlayedCard.lineIndex === lineIndex && 
+                    lastPlayedCard.stackIndex === index &&
+                    lastPlayedCard.isOpponent === isOpponentStack) {
+                    cardElem.classList.add('last-played');
+                }
+                
+                // Add right-click handler for all cards (menu will check if it's valid)
+                cardElem.oncontextmenu = (e) => {
+                    showCardContextMenu(e, lineIndex, index, isOpponentStack);
+                };
+                
+                // Add hover zoom preview
+                cardElem.onmouseenter = (e) => {
+                    if (!card.faceDown) {
+                        showCardPreview(e, card);
+                    }
+                };
+                cardElem.onmouseleave = () => {
+                    hideCardPreview();
+                };
+                
+                // Add hover effect for top card only
+                if (index === cards.length - 1) {
+                    cardElem.style.cursor = 'context-menu';
+                    cardElem.title = gameState.currentTurn === 'me' ? 
+                        'Right-click for options' : 
+                        'Wait for your turn to manipulate cards';
+                }
+                
                 stackDiv.appendChild(cardElem);
             });
         }
+        
+        function showCardPreview(event, card) {
+            // Remove any existing preview
+            hideCardPreview();
+            
+            const preview = document.createElement('div');
+            preview.id = 'card-preview';
+            preview.className = `card protocol-${card.protocol}`;
+            preview.style.cssText = `
+                position: fixed;
+                width: 200px;
+                height: 280px;
+                z-index: 2000;
+                pointer-events: none;
+                transform: scale(1);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+                border: 3px solid #00ff88;
+                transition: none;
+                background: linear-gradient(135deg, var(--card-bg1), var(--card-bg2));
+            `;
+            
+            const content = `
+                <div class="card-content" style="transform: scale(1.4); transform-origin: top left; padding: 10px;">
+                    <div class="card-header">
+                        <span style="text-transform: uppercase; font-size: 14px; font-weight: bold;">${card.protocol}</span>
+                        <span class="card-value" style="font-size: 30px; font-weight: bold;">${card.value}</span>
+                    </div>
+                    <div class="card-text" style="margin-top: 10px;">
+                        <div style="font-size: 12px; padding: 6px; margin: 4px 0; background: rgba(0,0,0,0.4); border-radius: 3px;">
+                            <strong>PERSISTENT:</strong><br>${card.topText}
+                        </div>
+                        <div style="font-size: 13px; padding: 8px; margin: 6px 0; background: rgba(255,255,255,0.2); border-radius: 3px; border: 1px solid rgba(255,255,255,0.3);">
+                            <strong>PLAY:</strong><br>${card.middleText}
+                        </div>
+                        <div style="font-size: 12px; padding: 6px; margin: 4px 0; background: rgba(0,0,0,0.4); border-radius: 3px;">
+                            <strong>TRIGGER:</strong><br>${card.bottomText}
+                        </div>
+                    </div>
+                </div>
+            `;
+            preview.innerHTML = content;
+            
+            // Position the preview
+            const rect = event.target.getBoundingClientRect();
+            const previewWidth = 200;
+            const previewHeight = 280;
+            const margin = 20;
+            
+            // Calculate available space
+            const spaceRight = window.innerWidth - rect.right - margin;
+            const spaceLeft = rect.left - margin;
+            const spaceAbove = rect.top - margin;
+            const spaceBelow = window.innerHeight - rect.bottom - margin;
+            
+            // Determine best position
+            let left, top;
+            
+            if (spaceRight >= previewWidth) {
+                // Show to the right
+                left = rect.right + margin;
+                top = Math.max(10, Math.min(rect.top - 50, window.innerHeight - previewHeight - 10));
+            } else if (spaceLeft >= previewWidth) {
+                // Show to the left
+                left = rect.left - previewWidth - margin;
+                top = Math.max(10, Math.min(rect.top - 50, window.innerHeight - previewHeight - 10));
+            } else if (spaceAbove >= previewHeight) {
+                // Show above
+                left = Math.max(10, Math.min(rect.left, window.innerWidth - previewWidth - 10));
+                top = rect.top - previewHeight - margin;
+            } else {
+                // Show below or best fit
+                left = Math.max(10, Math.min(rect.left, window.innerWidth - previewWidth - 10));
+                top = Math.min(rect.bottom + margin, window.innerHeight - previewHeight - 10);
+            }
+            
+            preview.style.left = left + 'px';
+            preview.style.top = top + 'px';
+            
+            document.body.appendChild(preview);
+        }
+        
+        function hideCardPreview() {
+            const preview = document.getElementById('card-preview');
+            if (preview) {
+                preview.remove();
+            }
+        }
 
-        function playCard(handIndex) {
-            if (gameState.currentTurn !== 'me') return;
+        let selectedCard = null;
+        let selectedCardIndex = null;
+        let contextMenuCard = null;
+        let lastPlayedCard = null; // Track last played card
+        
+        // Prevent default right-click menu
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.closest('.card')) {
+                e.preventDefault();
+            }
+        });
+        
+        function selectCard(handIndex) {
+            if (gameState.currentTurn !== 'me') {
+                showMessage('Not your turn!', 'error');
+                return;
+            }
             
             const card = gameState.myHand[handIndex];
             if (!card) return;
             
-            // Simple line selection (you'd want a better UI for this)
-            const lineIndex = prompt('Which line? (0, 1, or 2)');
-            if (lineIndex === null || lineIndex < 0 || lineIndex > 2) return;
+            // Store selected card
+            selectedCard = card;
+            selectedCardIndex = handIndex;
             
-            const faceDown = confirm('Play face-down?');
+            // Highlight selected card
+            document.querySelectorAll('.hand .card').forEach((c, i) => {
+                c.style.border = i === handIndex ? '3px solid #00ff88' : '';
+            });
+            
+            // Show line selection UI
+            showLineSelection();
+        }
+        
+        function showCardContextMenu(e, lineIndex, stackIndex, isOpponent = false) {
+            e.preventDefault();
+            
+            // Remove any existing context menu
+            const existing = document.getElementById('context-menu');
+            if (existing) existing.remove();
+            
+            if (gameState.currentTurn !== 'me') {
+                showMessage('Not your turn!', 'error');
+                return;
+            }
+            
+            const stack = isOpponent ? gameState.field[lineIndex].oppStack : gameState.field[lineIndex].myStack;
+            const card = stack[stackIndex];
+            
+            if (!card) return;
+            
+            // Can only manipulate uncovered cards (top of stack)
+            const isUncovered = stackIndex === stack.length - 1;
+            if (!isUncovered) {
+                showMessage('Can only manipulate the top card of each stack!', 'error');
+                return;
+            }
+            
+            // Can't manipulate opponent's cards unless they're yours
+            if (isOpponent && !card.isYours) {
+                showMessage("Can't manipulate opponent's cards!", 'error');
+                return;
+            }
+            
+            const menu = document.createElement('div');
+            menu.id = 'context-menu';
+            menu.style.cssText = `
+                position: fixed;
+                left: ${e.pageX}px;
+                top: ${e.pageY}px;
+                background: rgba(0, 0, 0, 0.95);
+                border: 1px solid #00ff88;
+                border-radius: 5px;
+                padding: 0;
+                z-index: 1000;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            `;
+            
+            const options = [];
+            
+            // Flip option
+            options.push({
+                text: card.faceDown ? 'Flip Face-Up' : 'Flip Face-Down',
+                action: () => flipCard(lineIndex, stackIndex, isOpponent)
+            });
+            
+            // Discard option
+            options.push({
+                text: 'Discard Card',
+                action: () => discardCard(lineIndex, stackIndex, isOpponent)
+            });
+            
+            // Return to hand
+            options.push({
+                text: 'Return to Hand',
+                action: () => returnToHand(lineIndex, stackIndex, isOpponent)
+            });
+            
+            // Move to another line
+            options.push({
+                text: 'Move to Line...',
+                action: () => showMoveOptions(lineIndex, stackIndex, isOpponent)
+            });
+            
+            // Delete card (send to trash)
+            options.push({
+                text: 'Delete Card',
+                action: () => deleteCard(lineIndex, stackIndex, isOpponent)
+            });
+            
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.textContent = option.text;
+                btn.style.cssText = `
+                    display: block;
+                    width: 100%;
+                    padding: 8px 15px;
+                    background: transparent;
+                    color: #00ff88;
+                    border: none;
+                    text-align: left;
+                    cursor: pointer;
+                    font-family: inherit;
+                    font-size: 12px;
+                    transition: all 0.2s;
+                `;
+                btn.onmouseover = () => btn.style.background = 'rgba(0, 255, 136, 0.2)';
+                btn.onmouseout = () => btn.style.background = 'transparent';
+                btn.onclick = () => {
+                    option.action();
+                    menu.remove();
+                };
+                menu.appendChild(btn);
+            });
+            
+            // Cancel option
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.style.cssText = `
+                display: block;
+                width: 100%;
+                padding: 8px 15px;
+                background: transparent;
+                color: #ff4444;
+                border: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                text-align: left;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: 12px;
+            `;
+            cancelBtn.onclick = () => menu.remove();
+            menu.appendChild(cancelBtn);
+            
+            document.body.appendChild(menu);
+            
+            // Remove menu when clicking elsewhere
+            setTimeout(() => {
+                document.addEventListener('click', function removeMenu() {
+                    menu.remove();
+                    document.removeEventListener('click', removeMenu);
+                });
+            }, 100);
+        }
+        
+        function flipCard(lineIndex, stackIndex, isOpponent) {
+            const stack = isOpponent ? gameState.field[lineIndex].oppStack : gameState.field[lineIndex].myStack;
+            const card = stack[stackIndex];
+            
+            if (!card) return;
+            
+            // Check if flipping face-up to correct protocol
+            if (card.faceDown && !isOpponent) {
+                const myProtocol = gameState.myProtocols[lineIndex];
+                if (card.protocol !== myProtocol) {
+                    showMessage(`Can't flip ${card.protocol} face-up in ${myProtocol} line!`, 'error');
+                    return;
+                }
+            }
+            
+            card.faceDown = !card.faceDown;
+            
+            // Track as last action
+            lastPlayedCard = {
+                lineIndex: lineIndex,
+                stackIndex: stackIndex,
+                isOpponent: isOpponent
+            };
+            
+            // Send action to opponent
+            if (conn && conn.send) {
+                conn.send({
+                    type: 'cardAction',
+                    action: 'flip',
+                    lineIndex: lineIndex,
+                    stackIndex: stackIndex,
+                    isOpponent: !isOpponent // Reverse perspective for opponent
+                });
+            }
+            
+            showMessage(`Card ${card.faceDown ? 'flipped face-down' : 'revealed'}!`, 'info');
+            updateUI();
+        }
+        
+        function discardCard(lineIndex, stackIndex, isOpponent) {
+            const stack = isOpponent ? gameState.field[lineIndex].oppStack : gameState.field[lineIndex].myStack;
+            const card = stack[stackIndex];
+            
+            if (!card) return;
+            
+            // Remove from stack and add to hand (to discard later)
+            stack.splice(stackIndex, 1);
+            gameState.myTrash.push(card);
+            
+            // Send action to opponent
+            if (conn && conn.send) {
+                conn.send({
+                    type: 'cardAction',
+                    action: 'discard',
+                    lineIndex: lineIndex,
+                    stackIndex: stackIndex,
+                    isOpponent: !isOpponent
+                });
+            }
+            
+            showMessage('Card discarded!', 'info');
+            updateUI();
+        }
+        
+        function returnToHand(lineIndex, stackIndex, isOpponent) {
+            if (gameState.myHand.length >= 7) {
+                showMessage('Hand is full! (max 7 cards)', 'error');
+                return;
+            }
+            
+            const stack = isOpponent ? gameState.field[lineIndex].oppStack : gameState.field[lineIndex].myStack;
+            const card = stack[stackIndex];
+            
+            if (!card) return;
+            
+            // Remove from stack and add to hand
+            stack.splice(stackIndex, 1);
+            card.faceDown = false; // Cards in hand are always face-up
+            gameState.myHand.push(card);
+            
+            // Send action to opponent
+            if (conn && conn.send) {
+                conn.send({
+                    type: 'cardAction',
+                    action: 'return',
+                    lineIndex: lineIndex,
+                    stackIndex: stackIndex,
+                    isOpponent: !isOpponent
+                });
+            }
+            
+            showMessage('Card returned to hand!', 'info');
+            updateUI();
+        }
+        
+        function deleteCard(lineIndex, stackIndex, isOpponent) {
+            const stack = isOpponent ? gameState.field[lineIndex].oppStack : gameState.field[lineIndex].myStack;
+            const card = stack[stackIndex];
+            
+            if (!card) return;
+            
+            // Remove from stack and add to trash
+            stack.splice(stackIndex, 1);
+            gameState.myTrash.push(card);
+            
+            // Send action to opponent
+            if (conn && conn.send) {
+                conn.send({
+                    type: 'cardAction',
+                    action: 'delete',
+                    lineIndex: lineIndex,
+                    stackIndex: stackIndex,
+                    isOpponent: !isOpponent
+                });
+            }
+            
+            showMessage('Card deleted!', 'info');
+            updateUI();
+        }
+        
+        function showMoveOptions(fromLine, stackIndex, isOpponent) {
+            const modal = document.createElement('div');
+            modal.className = 'move-modal';
+            modal.innerHTML = `
+                <div style="background: rgba(0,0,0,0.9); padding: 20px; border: 2px solid #00ff88; border-radius: 10px;">
+                    <h3>Move card to which line?</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        ${[0, 1, 2].map(i => 
+                            `<button onclick="moveCard(${fromLine}, ${stackIndex}, ${i}, ${isOpponent})" style="flex: 1;">
+                                Line ${i + 1}<br><small>${gameState.myProtocols[i]}</small>
+                            </button>`
+                        ).join('')}
+                        <button onclick="this.closest('.move-modal').remove()" style="flex: 1; background: rgba(255,0,0,0.2);">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            modal.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 1001;
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function moveCard(fromLine, stackIndex, toLine, isOpponent) {
+            if (fromLine === toLine) {
+                showMessage('Card is already in that line!', 'error');
+                document.querySelector('.move-modal')?.remove();
+                return;
+            }
+            
+            const fromStack = isOpponent ? gameState.field[fromLine].oppStack : gameState.field[fromLine].myStack;
+            const toStack = isOpponent ? gameState.field[toLine].oppStack : gameState.field[toLine].myStack;
+            const card = fromStack[stackIndex];
+            
+            if (!card) return;
+            
+            // Check if moving face-up card to correct protocol
+            if (!card.faceDown && !isOpponent) {
+                const targetProtocol = gameState.myProtocols[toLine];
+                if (card.protocol !== targetProtocol) {
+                    showMessage(`Can't move ${card.protocol} face-up to ${targetProtocol} line! Flip it face-down first.`, 'error');
+                    document.querySelector('.move-modal')?.remove();
+                    return;
+                }
+            }
+            
+            // Remove from old line and add to new line
+            fromStack.splice(stackIndex, 1);
+            toStack.push(card);
+            
+            // Track as last action (at new position)
+            lastPlayedCard = {
+                lineIndex: toLine,
+                stackIndex: toStack.length - 1,
+                isOpponent: isOpponent
+            };
+            
+            // Send action to opponent
+            if (conn && conn.send) {
+                conn.send({
+                    type: 'cardAction',
+                    action: 'move',
+                    fromLine: fromLine,
+                    toLine: toLine,
+                    stackIndex: stackIndex,
+                    isOpponent: !isOpponent
+                });
+            }
+            
+            showMessage(`Card moved to line ${toLine + 1}!`, 'info');
+            document.querySelector('.move-modal')?.remove();
+            updateUI();
+        }
+        
+        function showLineSelection() {
+            // Highlight valid lines
+            for (let i = 0; i < 3; i++) {
+                const line = document.querySelector(`.line[data-line="${i}"]`);
+                const myStack = document.getElementById(`my-stack-${i}`);
+                const myProtocol = gameState.myProtocols[i];
+                
+                // Check if card can be played face-up to this line
+                const canPlayFaceUp = selectedCard.protocol === myProtocol;
+                
+                // Highlight stacks
+                myStack.style.outline = canPlayFaceUp ? '2px solid #00ff88' : '2px dashed #ffaa00';
+                myStack.style.outlineOffset = '5px';
+                myStack.style.cursor = 'pointer';
+                
+                // Add tooltip
+                myStack.title = canPlayFaceUp ? 
+                    `Click to play ${selectedCard.protocol} to ${myProtocol} line (can play face-up or face-down)` : 
+                    `Click to play to ${myProtocol} line (face-down only - wrong protocol)`;
+                
+                // Add click handler
+                myStack.onclick = () => playToLine(i);
+            }
+            
+            // Show instruction
+            showMessage('Click a stack (area below your protocols) to play the card there', 'info');
+        }
+        
+        function playToLine(lineIndex) {
+            if (!selectedCard || selectedCardIndex === null) return;
+            
+            // Ask for face up/down
+            const playOptions = document.createElement('div');
+            playOptions.className = 'play-options-modal';
+            playOptions.innerHTML = `
+                <div style="background: rgba(0,0,0,0.9); padding: 20px; border: 2px solid #00ff88; border-radius: 10px;">
+                    <h3>Play ${selectedCard.protocol.toUpperCase()} ${selectedCard.value}</h3>
+                    <p>Choose how to play this card to line ${lineIndex + 1}:</p>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button onclick="confirmPlay(${lineIndex}, false)" style="flex: 1;">
+                            Face Up<br><small>(Reveal effects)</small>
+                        </button>
+                        <button onclick="confirmPlay(${lineIndex}, true)" style="flex: 1;">
+                            Face Down<br><small>(Hidden)</small>
+                        </button>
+                        <button onclick="cancelPlay()" style="flex: 1; background: rgba(255,0,0,0.2);">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            playOptions.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 1000;
+            `;
+            document.body.appendChild(playOptions);
+        }
+        
+        function confirmPlay(lineIndex, faceDown) {
+            // Remove modal
+            document.querySelector('.play-options-modal')?.remove();
+            
+            // Clear highlights
+            clearLineSelection();
+            
+            // Play the card
+            const card = selectedCard;
+            card.faceDown = faceDown;
+            
+            // Check if playing face-up to correct protocol
+            if (!faceDown) {
+                const myProtocol = gameState.myProtocols[lineIndex];
+                if (card.protocol !== myProtocol) {
+                    showMessage(`Can't play ${card.protocol} face-up to ${myProtocol} line!`, 'error');
+                    cancelPlay();
+                    return;
+                }
+            }
+            
+            // Track last played card position
+            lastPlayedCard = {
+                lineIndex: lineIndex,
+                stackIndex: gameState.field[lineIndex].myStack.length, // Will be the index after adding
+                isOpponent: false
+            };
             
             // Remove from hand and add to field
-            gameState.myHand.splice(handIndex, 1);
-            card.faceDown = faceDown;
+            gameState.myHand.splice(selectedCardIndex, 1);
             gameState.field[lineIndex].myStack.push(card);
             
             // Send to opponent
-            conn.send({
-                type: 'playCard',
-                lineIndex: lineIndex,
-                card: faceDown ? { faceDown: true } : card
-            });
+            if (conn && conn.send) {
+                conn.send({
+                    type: 'playCard',
+                    lineIndex: lineIndex,
+                    card: faceDown ? { faceDown: true, value: 0 } : card
+                });
+            }
+            
+            // Clear selection
+            selectedCard = null;
+            selectedCardIndex = null;
             
             updateUI();
+            showMessage(`Played card to line ${lineIndex + 1}`, 'success');
+        }
+        
+        function cancelPlay() {
+            document.querySelector('.play-options-modal')?.remove();
+            clearLineSelection();
+            selectedCard = null;
+            selectedCardIndex = null;
+            
+            // Clear card highlights
+            document.querySelectorAll('.hand .card').forEach(c => {
+                c.style.border = '';
+            });
+        }
+        
+        function clearLineSelection() {
+            // Clear stack highlights
+            for (let i = 0; i < 3; i++) {
+                const myStack = document.getElementById(`my-stack-${i}`);
+                myStack.style.outline = '';
+                myStack.style.cursor = '';
+                myStack.onclick = null;
+                myStack.title = '';
+            }
+        }
+        
+        function showMessage(text, type = 'info') {
+            const existing = document.getElementById('game-message');
+            if (existing) existing.remove();
+            
+            const message = document.createElement('div');
+            message.id = 'game-message';
+            message.textContent = text;
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                padding: 10px 20px;
+                background: ${type === 'error' ? 'rgba(255,0,0,0.2)' : type === 'success' ? 'rgba(0,255,0,0.2)' : 'rgba(0,255,136,0.2)'};
+                border: 2px solid ${type === 'error' ? '#ff4444' : '#00ff88'};
+                color: ${type === 'error' ? '#ff4444' : '#00ff88'};
+                border-radius: 5px;
+                z-index: 999;
+                font-weight: bold;
+            `;
+            document.body.appendChild(message);
+            
+            setTimeout(() => message.remove(), 3000);
         }
 
         function handleOpponentPlayCard(data) {
             const card = data.card;
+            
+            // Track last played card position
+            lastPlayedCard = {
+                lineIndex: data.lineIndex,
+                stackIndex: gameState.field[data.lineIndex].oppStack.length, // Will be the index after adding
+                isOpponent: true
+            };
+            
             gameState.field[data.lineIndex].oppStack.push(card);
             gameState.opponentHandCount--;
             updateUI();
@@ -1060,28 +2150,148 @@
             if (gameState.currentTurn !== 'me') return;
             
             gameState.currentTurn = 'opponent';
+            
+            // Clear last played card after a delay
+            setTimeout(() => {
+                lastPlayedCard = null;
+                updateUI();
+            }, 3000);
+            
             conn.send({ type: 'endTurn' });
             updateUI();
         }
 
         function checkCompileConditions() {
-            // Check each line for compile conditions
+            // Show or hide compile buttons based on turn
+            for (let i = 0; i < 3; i++) {
+                const myProtocol = document.getElementById(`my-protocol-${i}`);
+                const existingBtn = document.getElementById(`compile-btn-${i}`);
+                
+                if (gameState.currentTurn === 'me' && !myProtocol.classList.contains('compiled')) {
+                    // Add compile button if not exists
+                    if (!existingBtn) {
+                        const compileBtn = document.createElement('button');
+                        compileBtn.id = `compile-btn-${i}`;
+                        compileBtn.textContent = 'COMPILE?';
+                        compileBtn.style.cssText = `
+                            position: absolute;
+                            bottom: -28px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: rgba(0, 0, 0, 0.8);
+                            color: #00ff88;
+                            border: 1px solid rgba(0, 255, 136, 0.5);
+                            padding: 3px 8px;
+                            border-radius: 3px;
+                            font-weight: normal;
+                            cursor: pointer;
+                            z-index: 10;
+                            font-size: 10px;
+                            opacity: 0.7;
+                            transition: all 0.3s;
+                        `;
+                        compileBtn.onmouseover = (e) => {
+                            e.target.style.opacity = '1';
+                            e.target.style.background = 'rgba(0, 255, 136, 0.2)';
+                        };
+                        compileBtn.onmouseout = (e) => {
+                            e.target.style.opacity = '0.7';
+                            e.target.style.background = 'rgba(0, 0, 0, 0.8)';
+                        };
+                        compileBtn.onclick = () => attemptCompile(i);
+                        compileBtn.title = 'Attempt to compile this protocol (need 10+ and beat opponent)';
+                        myProtocol.parentElement.style.position = 'relative';
+                        myProtocol.parentElement.appendChild(compileBtn);
+                    }
+                } else {
+                    // Remove button if it's not player's turn or already compiled
+                    if (existingBtn) existingBtn.remove();
+                }
+            }
+        }
+        
+        function attemptCompile(lineIndex) {
+            if (gameState.currentTurn !== 'me') return;
+            
+            const myValue = calculateLineValue(gameState.field[lineIndex].myStack);
+            const oppValue = calculateLineValue(gameState.field[lineIndex].oppStack);
+            
+            if (myValue >= 10 && myValue > oppValue) {
+                // Success! Delete all cards in this line
+                gameState.myTrash.push(...gameState.field[lineIndex].myStack);
+                gameState.field[lineIndex].myStack = [];
+                gameState.field[lineIndex].oppStack = [];
+                
+                // Flip protocol to compiled
+                const myProtocol = document.getElementById(`my-protocol-${lineIndex}`);
+                myProtocol.classList.remove('loading');
+                myProtocol.classList.add('compiled');
+                
+                // Send compile action to opponent
+                if (conn && conn.send) {
+                    conn.send({
+                        type: 'compileLine',
+                        lineIndex: lineIndex
+                    });
+                }
+                
+                showMessage(`Successfully compiled ${gameState.myProtocols[lineIndex]}!`, 'success');
+                
+                // Check for victory
+                checkVictory();
+                
+                updateUI();
+            } else {
+                // Failed compile attempt
+                if (myValue < 10) {
+                    showMessage(`Compile failed! You only have ${myValue} value (need 10+)`, 'error');
+                } else {
+                    showMessage(`Compile failed! Your ${myValue} doesn't beat opponent's ${oppValue}`, 'error');
+                }
+            }
+        }
+        
+        function checkVictory() {
+            const compiledCount = document.querySelectorAll('.protocol.compiled#my-protocol-0, .protocol.compiled#my-protocol-1, .protocol.compiled#my-protocol-2').length;
+            
+            if (compiledCount === 3) {
+                showMessage('YOU WIN! All protocols compiled!', 'success');
+                document.getElementById('turn-indicator').textContent = 'VICTORY!';
+                document.getElementById('turn-indicator').style.color = '#00ff88';
+                document.getElementById('refresh-btn').disabled = true;
+                document.getElementById('end-turn-btn').disabled = true;
+                document.getElementById('count-btn').disabled = true;
+            }
+        }
+
+        function countValues() {
+            // Manual count - show values temporarily
             for (let i = 0; i < 3; i++) {
                 const myValue = calculateLineValue(gameState.field[i].myStack);
                 const oppValue = calculateLineValue(gameState.field[i].oppStack);
                 
-                if (myValue >= 10 && myValue > oppValue) {
-                    // Can compile this line
-                    const myProtocol = document.getElementById(`my-protocol-${i}`);
-                    if (!myProtocol.classList.contains('compiled')) {
-                        myProtocol.style.boxShadow = '0 0 20px #00ff88';
-                    }
+                const lineLabel = document.querySelector(`.line[data-line="${i}"] .line-label`);
+                if (lineLabel) {
+                    const originalText = lineLabel.innerHTML;
+                    lineLabel.innerHTML = `Line ${i + 1}<br><small style="color: #00ff88;">You: ${myValue} | Opp: ${oppValue}</small>`;
+                    
+                    // Reset after 3 seconds
+                    setTimeout(() => {
+                        lineLabel.innerHTML = `Line ${i + 1}`;
+                    }, 3000);
                 }
             }
+            
+            showMessage('Values shown for 3 seconds', 'info');
         }
-
+        
         function calculateLineValue(stack) {
-            return stack.reduce((sum, card) => sum + (card.faceDown ? 0 : card.value), 0);
+            return stack.reduce((sum, card) => {
+                // Face-down cards have value 0
+                if (card.faceDown) return sum;
+                // Face-up cards add their value
+                return sum + (card.value || 0);
+            }, 0);
         }
 
         function shuffle(array) {
@@ -1093,10 +2303,16 @@
             return newArray;
         }
 
-        // Initialize on load
-        window.addEventListener('load', () => {
-            initPeer();
-        });
+        // Make functions globally available for button onclick handlers
+        window.confirmPlay = confirmPlay;
+        window.cancelPlay = cancelPlay;
+        window.moveCard = moveCard;
+        window.refreshHand = refreshHand;
+        window.countValues = countValues;
+        window.endTurn = endTurn;
+        window.connectToPeer = connectToPeer;
+        window.copyId = copyId;
+        window.useLocalMode = useLocalMode;
     </script>
 </body>
 </html>
