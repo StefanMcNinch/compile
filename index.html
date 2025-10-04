@@ -231,7 +231,7 @@
         }
 
         .stack .card {
-            margin-top: -100px;
+            margin-top: -85px;
         }
 
         .stack .card:first-child {
@@ -256,10 +256,6 @@
             color: #666;
             font-weight: bold;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        
-        .stack .card:last-child.face-down {
-            cursor: context-menu;
         }
 
         .card:hover {
@@ -535,7 +531,7 @@
     <div id="game-board" class="hidden">
         <div style="text-align: center; margin-bottom: 10px;">
             <small style="color: #00ff88; opacity: 0.8;">
-                Right-click any top card in a stack to: Flip • Discard • Return to hand • Move • Delete
+                Right-click any card in any stack to: Flip • Discard • Return to hand • Move • Delete
             </small>
         </div>
         <div class="player-area" id="opponent-area">
@@ -1306,7 +1302,7 @@
                         <span class="card-value">${card.value}</span>
                     </div>
                     <div class="card-text">
-                        <div style="font-size: 8px; opacity: 0.9;">${card.topText}</div>
+                        <div style="font-size: 9px; opacity: 0.95; font-weight: bold; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2);">${card.topText}</div>
                         <div style="background: rgba(255,255,255,0.1);"><strong>${card.middleText}</strong></div>
                         <div style="font-size: 8px; opacity: 0.9;">${card.bottomText}</div>
                     </div>
@@ -1473,7 +1469,7 @@
                     cardElem.classList.add('last-played');
                 }
                 
-                // Add right-click handler for all cards (menu will check if it's valid)
+                // Add right-click handler for all cards - no restrictions!
                 cardElem.oncontextmenu = (e) => {
                     showCardContextMenu(e, lineIndex, index, isOpponentStack);
                 };
@@ -1488,13 +1484,11 @@
                     hideCardPreview();
                 };
                 
-                // Add hover effect for top card only
-                if (index === cards.length - 1) {
-                    cardElem.style.cursor = 'context-menu';
-                    cardElem.title = gameState.currentTurn === 'me' ? 
-                        'Right-click for options' : 
-                        'Wait for your turn to manipulate cards';
-                }
+                // All cards can be right-clicked
+                cardElem.style.cursor = 'context-menu';
+                cardElem.title = gameState.currentTurn === 'me' ? 
+                    'Right-click for options' : 
+                    'Wait for your turn to manipulate cards';
                 
                 stackDiv.appendChild(cardElem);
             });
@@ -1509,32 +1503,34 @@
             preview.className = `card protocol-${card.protocol}`;
             preview.style.cssText = `
                 position: fixed;
-                width: 200px;
-                height: 280px;
+                width: 240px;
+                height: 340px;
                 z-index: 2000;
                 pointer-events: none;
-                transform: scale(1);
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
                 border: 3px solid #00ff88;
                 transition: none;
                 background: linear-gradient(135deg, var(--card-bg1), var(--card-bg2));
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
             `;
             
             const content = `
-                <div class="card-content" style="transform: scale(1.4); transform-origin: top left; padding: 10px;">
-                    <div class="card-header">
-                        <span style="text-transform: uppercase; font-size: 14px; font-weight: bold;">${card.protocol}</span>
-                        <span class="card-value" style="font-size: 30px; font-weight: bold;">${card.value}</span>
+                <div class="card-content" style="padding: 12px; flex: 1; display: flex; flex-direction: column; height: 100%;">
+                    <div class="card-header" style="margin-bottom: 8px;">
+                        <span style="text-transform: uppercase; font-size: 16px; font-weight: bold;">${card.protocol}</span>
+                        <span class="card-value" style="font-size: 36px; font-weight: bold;">${card.value}</span>
                     </div>
-                    <div class="card-text" style="margin-top: 10px;">
-                        <div style="font-size: 12px; padding: 6px; margin: 4px 0; background: rgba(0,0,0,0.4); border-radius: 3px;">
-                            <strong>PERSISTENT:</strong><br>${card.topText}
+                    <div class="card-text" style="flex: 1; display: flex; flex-direction: column; gap: 8px; justify-content: space-between;">
+                        <div style="font-size: 13px; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);">
+                            <strong style="color: #00ff88;">PERSISTENT:</strong><br>${card.topText}
                         </div>
-                        <div style="font-size: 13px; padding: 8px; margin: 6px 0; background: rgba(255,255,255,0.2); border-radius: 3px; border: 1px solid rgba(255,255,255,0.3);">
-                            <strong>PLAY:</strong><br>${card.middleText}
+                        <div style="font-size: 14px; padding: 10px; background: rgba(255,255,255,0.25); border-radius: 4px; border: 2px solid rgba(255,255,255,0.4);">
+                            <strong style="color: #fff;">PLAY:</strong><br>${card.middleText}
                         </div>
-                        <div style="font-size: 12px; padding: 6px; margin: 4px 0; background: rgba(0,0,0,0.4); border-radius: 3px;">
-                            <strong>TRIGGER:</strong><br>${card.bottomText}
+                        <div style="font-size: 13px; padding: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);">
+                            <strong style="color: #ffaa00;">TRIGGER:</strong><br>${card.bottomText}
                         </div>
                     </div>
                 </div>
@@ -1543,8 +1539,8 @@
             
             // Position the preview
             const rect = event.target.getBoundingClientRect();
-            const previewWidth = 200;
-            const previewHeight = 280;
+            const previewWidth = 240;
+            const previewHeight = 340;
             const margin = 20;
             
             // Calculate available space
@@ -1638,18 +1634,7 @@
             
             if (!card) return;
             
-            // Can only manipulate uncovered cards (top of stack)
-            const isUncovered = stackIndex === stack.length - 1;
-            if (!isUncovered) {
-                showMessage('Can only manipulate the top card of each stack!', 'error');
-                return;
-            }
-            
-            // Can't manipulate opponent's cards unless they're yours
-            if (isOpponent && !card.isYours) {
-                showMessage("Can't manipulate opponent's cards!", 'error');
-                return;
-            }
+            // Allow manipulation of any card - no restrictions!
             
             const menu = document.createElement('div');
             menu.id = 'context-menu';
@@ -2302,6 +2287,9 @@
             }
             return newArray;
         }
+
+        // Initialize peer connection on page load
+        initPeer();
 
         // Make functions globally available for button onclick handlers
         window.confirmPlay = confirmPlay;
